@@ -2,14 +2,17 @@
 import adapter from '@sveltejs/adapter-auto';
 import preprocess from 'svelte-preprocess';
 
-export default {
+const config = {
   kit: {
     adapter: adapter(),
-    // ... other configurations ...
+    // Optional: Add other kit configurations here
   },
   preprocess: [
     preprocess({
       postcss: true, // Enables PostCSS processing
+      // Optional: Add other preprocessors like SCSS, TypeScript, etc.
     }),
   ],
 };
+
+export default config;
