@@ -3,68 +3,56 @@
     // No additional JavaScript needed for this page
   </script>
   
-  <h1>Resume</h1>
+  <!-- Resume Page Container -->
+  <section class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Page Title -->
+    <h1 class="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100 text-center">Resume</h1>
   
-  <section>
-    <h2>Personal Information</h2>
-    <p>
-      Nikolai Pastore<br />
-      Email: <a href="mailto:npastore@ucsd.edu">npastore@ucsd.edu</a><br />
-    </p>
+    <!-- Personal Information Section -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Personal Information</h2>
+      <p class="text-lg text-gray-700 dark:text-gray-300">
+        <strong>Name:</strong> Nikolai Pastore<br />
+        <strong>Email:</strong> <a href="mailto:npastore@ucsd.edu" class="text-indigo-500 hover:underline">npastore@ucsd.edu</a>
+      </p>
+    </section>
+  
+    <!-- Education Section -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Education</h2>
+      <article class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Bachelor of Psychology in Business Psychology</h3>
+        <p class="text-md text-gray-600 dark:text-gray-400">University of California, San Diego</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <time datetime="2020-09">September 2020</time> – <time datetime="2022-06">June 2022</time>
+        </p>
+      </article>
+      <article>
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Master of Science in Applied Data Science</h3>
+        <p class="text-md text-gray-600 dark:text-gray-400">University of California, San Diego</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <time datetime="2023-09">September 2023</time> – <time datetime="2025-06">June 2025</time>
+        </p>
+      </article>
+    </section>
+  
+    <!-- Work Experience Section -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Work Experience</h2>
+      <article class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Data Engineering Internship at Routeware, Inc.</h3>
+        <p class="text-md text-gray-600 dark:text-gray-400">Built company-wide data dictionary and completed customer ad-hoc tasks.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <time datetime="2023-05">May 2023</time> – <time datetime="2023-08">August 2023</time>
+        </p>
+      </article>
+      <article>
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Data Engineer at Routeware, Inc.</h3>
+        <p class="text-md text-gray-600 dark:text-gray-400">Currently working on scalable data solutions.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <time datetime="2023-08">August 2023</time> – Present
+        </p>
+      </article>
+    </section>
   </section>
-  
-  <section>
-    <h2>Education</h2>
-    <article>
-      <h3>Bachelor of Psychology in Business Psychology</h3>
-      <p>University of California, San Diego</p>
-      <p>
-        <time datetime="2020-09">September 2020</time> to
-        <time datetime="2022-06">June 2022</time>
-      </p>
-    </article>
-    <article>
-      <h3>Master of Science in Applied Data Science</h3>
-      <p>University of California, San Diego</p>
-      <p>
-        <time datetime="2023-09">September 2023</time> to
-        <time datetime="2025-06">June 2025</time>
-      </p>
-    </article>
-  </section>
-  
-  <section>
-    <h2>Work Experience</h2>
-    <article>
-      <h3>Data Engineering Internship at Routeware, Inc.</h3>
-      <p>Built company-wide data dictionary and completed customer ad-hoc tasks</p>
-      <p>
-        <time datetime="2023-05">May 2023</time> to
-        <time datetime="2023-08">August 2023</time>
-      </p>
-    </article>
-    <article>
-      <h3>Data Engineer at Routeware, Inc.</h3>
-      <p>Currently working on scalable data solutions.</p>
-      <p>
-        <time datetime="2023-08">August 2023</time> to Present
-      </p>
-    </article>
-  </section>
-  
-  <style>
-    /* Add styles specific to the CV page here */
-    h1 {
-      margin-bottom: 20px;
-    }
-    section {
-      margin-bottom: 30px;
-    }
-    h2 {
-      margin-bottom: 15px;
-    }
-    article {
-      margin-bottom: 20px;
-    }
-  </style>
   

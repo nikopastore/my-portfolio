@@ -35,11 +35,6 @@
       image: 'https://vis-society.github.io/labs/2/images/empty.svg',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     },
-    {
-      title: 'Project 4',
-      image: 'https://vis-society.github.io/labs/2/images/empty.svg',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
   ];
 </script>
 
@@ -50,8 +45,9 @@
   <img
   src="/images/WLDI3061.JPG"
   alt="Photo of Nikolai Pastore"
-  class="rounded-full mb-6 w-16 md:w-24 lg:w-32 h-16 md:h-24 lg:h-32 object-cover mx-auto"
+  class="rounded-full mb-6 w-32 md:w-48 lg:w-64 h-32 md:h-48 lg:h-64 object-cover mx-auto"
 />
+
 
 
   <p class="text-lg text-gray-800 dark:text-gray-200 text-center max-w-2xl mx-auto">
