@@ -17,7 +17,7 @@
     <h2>Education</h2>
     <article>
       <h3>Bachelor of Psychology in Business Psychology</h3>
-      <p>University of California, San Diego, June 2022</p>
+      <p>University of California, San Diego</p>
       <p>
         <time datetime="2020-09">September 2020</time> to
         <time datetime="2022-06">June 2022</time>

@@ -15,9 +15,6 @@ let pages = [
 
 const ARE_WE_HOME = document.documentElement.classList.contains('home');
 
-let nav = document.createElement('nav');
-document.body.prepend(nav);
-
 for (let p of pages) {
   let url = p.url;
   let title = p.title;
