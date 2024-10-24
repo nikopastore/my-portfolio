@@ -1,49 +1,38 @@
 <!-- src/routes/projects/+page.svelte -->
 <script>
-    // Define an array of projects
     const projects = [
-      { title: 'Project 1', image: 'https://vis-society.github.io/labs/2/images/empty.svg', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-      { title: 'Project 2', image: 'https://vis-society.github.io/labs/2/images/empty.svg', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-      // Add more projects as needed
+      {
+        title: 'Project 1',
+        image: 'https://vis-society.github.io/labs/2/images/empty.svg',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      },
+      {
+        title: 'Project 2',
+        image: 'https://vis-society.github.io/labs/2/images/empty.svg',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      },
+      {
+        title: 'Project 3',
+        image: 'https://vis-society.github.io/labs/2/images/empty.svg',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      },
+      {
+        title: 'Project 4',
+        image: 'https://vis-society.github.io/labs/2/images/empty.svg',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      },
     ];
   </script>
   
-  <h1>Projects</h1>
+  <h1 class="text-3xl font-semibold mb-6">Projects</h1>
   
-  <div class="projects">
+  <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
     {#each projects as project}
-      <article>
-        <h2>{project.title}</h2>
-        <img src="{project.image}" alt="{project.title}" />
-        <p>{project.description}</p>
+      <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
+        <h2 class="text-xl font-semibold mb-2">{project.title}</h2>
+        <img src="{project.image}" alt="{project.title}" class="mb-4 w-full h-48 object-cover rounded" />
+        <p class="text-md text-gray-700">{project.description}</p>
       </article>
     {/each}
   </div>
-  
-  <style>
-    /* Add styles specific to the Projects page here */
-    .projects {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    article {
-      width: calc(33% - 20px);
-      box-sizing: border-box;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    @media (max-width: 768px) {
-      article {
-        width: calc(50% - 20px);
-      }
-    }
-    @media (max-width: 480px) {
-      article {
-        width: 100%;
-      }
-    }
-  </style>
   

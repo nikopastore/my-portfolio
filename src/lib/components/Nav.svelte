@@ -1,49 +1,42 @@
 <!-- src/lib/components/Nav.svelte -->
 <script>
+    import { onMount } from 'svelte';
     import { page } from '$app/stores';
   
-    // Define the pages array
-    export let pages = [
-      { url: '/', title: 'Home' },
-      { url: '/projects', title: 'Projects' },
-      { url: '/contact', title: 'Contact' },
-      { url: '/cv', title: 'CV' },
-      { url: 'https://github.com/nikopastore', title: 'GitHub Profile' },
-    ];
+    let currentPath = '';
   
-    // Get the current path from the page store
-    $: currentPath = $page.url.pathname;
+    onMount(() => {
+      currentPath = window.location.pathname;
+    });
+  
+    const pages = [
+      { title: 'Home', url: '#home' },
+      { title: 'Projects', url: '#projects' },
+      { title: 'CV', url: '#cv' },
+      { title: 'Contact', url: '#contact' },
+      { title: 'GitHub Profile', url: 'https://github.com/nikopastore' },
+    ];
   </script>
   
-  <nav>
+  <nav class="flex space-x-4 bg-white dark:bg-gray-800 p-4 shadow-md">
     {#each pages as p}
       {#if !p.url.startsWith('http')}
-        <!-- Internal links -->
-        <a href="{p.url}" class="{currentPath === p.url ? 'current' : ''}">
+        <a
+          href="{p.url}"
+          class="text-gray-700 dark:text-gray-200 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 {currentPath === p.url ? 'font-bold underline' : ''}"
+        >
           {p.title}
         </a>
       {:else}
-        <!-- External links -->
-        <a href="{p.url}" target="_blank" rel="noopener noreferrer">
+        <a
+          href="{p.url}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-gray-700 dark:text-gray-200 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200"
+        >
           {p.title}
         </a>
       {/if}
     {/each}
   </nav>
-  
-  <style>
-    nav {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    nav a {
-      text-decoration: none;
-      color: inherit;
-    }
-    nav a.current {
-      font-weight: bold;
-      text-decoration: underline;
-    }
-  </style>
   

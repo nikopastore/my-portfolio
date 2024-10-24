@@ -33,8 +33,8 @@
   </script>
   
   <label class="color-scheme flex items-center space-x-2">
-    <span>Theme:</span>
-    <select bind:value={scheme} on:change={handleChange} class="border rounded px-2 py-1">
+    <span class="text-gray-700 dark:text-gray-200">Theme:</span>
+    <select bind:value={scheme} on:change={handleChange} class="border rounded px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
       <option value="light dark">Automatic</option>
       <option value="light">Light</option>
       <option value="dark">Dark</option>
@@ -44,14 +44,6 @@
   <style>
     .color-scheme {
       margin-bottom: 15px;
-    }
-    select {
-      background-color: white;
-      color: black;
-    }
-    .dark select {
-      background-color: #2d3748;
-      color: white;
     }
   </style>
   

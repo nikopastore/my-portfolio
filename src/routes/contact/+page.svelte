@@ -32,7 +32,12 @@
       <span>Message:</span>
       <textarea name="body" bind:value={body} required></textarea>
     </label>
-    <button type="submit">Send Message</button>
+    <button
+  type="submit"
+  class="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors duration-200"
+>
+  Send Message
+</button>
   </form>
   
   <style>
