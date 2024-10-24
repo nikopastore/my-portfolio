@@ -48,9 +48,6 @@
 	},
 	"dependencies": {
 		"@inlang/paraglide-sveltekit": "^0.11.1",
-		"@oslojs/crypto": "^1.0.1",
-		"@oslojs/encoding": "^1.1.0",
-		"drizzle-orm": "^0.33.0",
 		"postgres": "^3.4.4"
 	}
 }
