@@ -1,10 +1,16 @@
+<!-- src/routes/+layout.svelte -->
 <script>
-	import '../app.css';
-	import { i18n } from '$lib/i18n';
-	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
-	let { children } = $props();
-</script>
-
-<ParaglideJS {i18n}>
-	{@render children()}
-</ParaglideJS>
+	import Nav from '$lib/components/Nav.svelte';
+	import ColorSchemeSelector from '$lib/components/ColorSchemeSelector.svelte';
+  
+	// Console log as per your original global.js
+	console.log('IT’S ALIVE!');
+  </script>
+  
+  <!-- Include the color scheme selector and navigation bar -->
+  <ColorSchemeSelector />
+  <Nav />
+  
+  <!-- The slot where each page's content will be injected -->
+  <slot />
+  
