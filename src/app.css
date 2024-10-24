@@ -3,7 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Your custom global styles here */
+/* Enable smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem; /* Adjust based on your header height */
+}
+
+/* Custom Global Styles */
 body {
-  @apply bg-gray-100 text-gray-900;
+  @apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
 }
