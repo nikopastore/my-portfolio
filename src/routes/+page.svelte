@@ -46,6 +46,7 @@
 <!-- Home Section -->
 <section id="home" class="mb-16">
   <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 text-center">Nikolai Pastore</h1>
+  <!-- svelte-ignore a11y_img_redundant_alt -->
   <img
   src="/images/WLDI3061.JPG"
   alt="Photo of Nikolai Pastore"

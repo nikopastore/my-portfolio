@@ -6,10 +6,11 @@
 /* Enable smooth scrolling */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4rem; /* Adjust based on your header height */
+  scroll-padding-top: 4rem; /* Adjust based on navbar height */
 }
 
 /* Custom Global Styles */
 body {
   @apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  padding-top: 4rem; /* Ensures content starts below the fixed navbar */
 }
