@@ -1,53 +1,58 @@
 <!-- src/routes/contact/+page.svelte -->
 <script>
-    let name = '';
     let email = '';
-    let message = '';
+    let subject = '';
+    let body = '';
   
     function handleSubmit(event) {
       event.preventDefault();
   
-      const mailto = `mailto:your-email@example.com?` + new URLSearchParams({
-        subject: 'Contact Form Submission',
-        body: `Name: ${name}\nEmail: ${email}\nMessage:\n${message}`,
+      const mailtoLink = `mailto:npastore@ucsd.edu?` + new URLSearchParams({
+        subject: subject || 'No Subject',
+        body: `From: ${email}\n\n${body}`,
       });
   
-      console.log('mailto URL:', mailto);
-  
-      window.location.href = mailto;
+      console.log('mailto URL:', mailtoLink);
+      window.location.href = mailtoLink;
     }
   </script>
   
-  <h1>Contact Me</h1>
+  <h1>Contact</h1>
   
   <form on:submit|preventDefault={handleSubmit}>
     <label>
-      Name:
-      <input type="text" bind:value={name} required />
+      <span>Your Email:</span>
+      <input type="email" name="email" bind:value={email} required />
     </label>
-    <br />
     <label>
-      Email:
-      <input type="email" bind:value={email} required />
+      <span>Subject:</span>
+      <input type="text" name="subject" bind:value={subject} />
     </label>
-    <br />
     <label>
-      Message:
-      <textarea bind:value={message} required></textarea>
+      <span>Message:</span>
+      <textarea name="body" bind:value={body} required></textarea>
     </label>
-    <br />
-    <button type="submit">Send</button>
+    <button type="submit">Send Message</button>
   </form>
   
   <style>
+    /* Add styles specific to the Contact page here */
     form {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+      max-width: 400px;
     }
     label {
       display: flex;
       flex-direction: column;
+    }
+    span {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    button {
+      width: 150px;
     }
   </style>
   
