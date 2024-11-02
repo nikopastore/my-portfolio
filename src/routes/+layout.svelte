@@ -5,21 +5,32 @@
   import ColorSchemeSelector from '$lib/components/ColorSchemeSelector.svelte';
   import { onMount } from 'svelte';
 
-  let colorScheme = 'light'; // Initialize with 'light' as default
+  let colorScheme = 'light';
+
+  // Check if running in the browser
+  function isBrowser() {
+    return typeof window !== 'undefined' && typeof document !== 'undefined';
+  }
 
   onMount(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      colorScheme = savedTheme;
-    } else {
-      // Detect system preference
-      colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (isBrowser()) {
+      const savedTheme = localStorage.getItem('theme');
+      colorScheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyColorScheme(); // Apply theme on mount if in the browser
     }
   });
 
-  // Reactive statement to apply the color scheme
-  $: globalThis?.document?.documentElement?.classList.toggle('dark', colorScheme === 'dark');
-  $: globalThis?.document?.documentElement?.style.setProperty('color-scheme', colorScheme);
+  // Function to apply the color scheme to the document
+  function applyColorScheme() {
+    if (isBrowser()) {
+      document.documentElement.classList.toggle('dark', colorScheme === 'dark');
+      document.documentElement.style.setProperty('color-scheme', colorScheme);
+      localStorage.setItem('theme', colorScheme); // Persist the selected theme
+    }
+  }
+
+  // Reactive statement to watch changes in colorScheme and apply them
+  $: if (isBrowser() && colorScheme) applyColorScheme();
 </script>
 
 <!-- Navigation Bar -->

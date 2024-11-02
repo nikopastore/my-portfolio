@@ -1,10 +1,21 @@
 <!-- src/lib/components/ColorSchemeSelector.svelte -->
 <script>
-  export let colorScheme = 'light'; // Receive the colorScheme variable from the layout
+  import { onMount } from 'svelte';
+  export let colorScheme = 'light';
 
+  // Toggle function to switch theme
   function toggleTheme() {
     colorScheme = colorScheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.classList.toggle('dark', colorScheme === 'dark');
+    localStorage.setItem('colorScheme', colorScheme); // Save preference
   }
+
+  // Set initial theme from stored preference or default
+  onMount(() => {
+    const savedScheme = localStorage.getItem('colorScheme') || colorScheme;
+    colorScheme = savedScheme;
+    document.documentElement.classList.toggle('dark', colorScheme === 'dark');
+  });
 </script>
 
 <button
@@ -20,5 +31,5 @@
 </button>
 
 <style>
-  /* Any additional component-specific styles can go here */
+  /* Optional: Add any additional styles here */
 </style>

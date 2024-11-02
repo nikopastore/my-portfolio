@@ -1,7 +1,7 @@
 <!-- src/lib/components/Nav.svelte -->
 <script>
   import { onMount } from 'svelte';
-  import { HiMenu, HiX } from 'svelte-icons/hi'; // Importing Heroicons via svelte-icons
+  import { ChevronDown } from 'svelte-hero-icons'; // Adjust to use any icon available in svelte-hero-icons
   import ColorSchemeSelector from '$lib/components/ColorSchemeSelector.svelte';
 
   let activeSection = 'home';
@@ -20,7 +20,7 @@
     const observerOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.6, // Adjust threshold as needed
+      threshold: 0.6,
     };
     
     const observerCallback = (entries) => {
@@ -95,11 +95,7 @@
   <div class="md:hidden flex items-center">
     <ColorSchemeSelector /> <!-- Include Theme Selector in Mobile Menu -->
     <button on:click={() => isMenuOpen = !isMenuOpen} class="ml-2 focus:outline-none">
-      {#if isMenuOpen}
-        <HiX class="w-6 h-6 text-gray-700 dark:text-gray-200" />
-      {:else}
-        <HiMenu class="w-6 h-6 text-gray-700 dark:text-gray-200" />
-      {/if}
+      <ChevronDown class="w-6 h-6 text-gray-700 dark:text-gray-200" /> <!-- Adjust to your available icon -->
     </button>
   </div>
   
@@ -135,6 +131,5 @@
 </nav>
 
 <style>
-  /* Ensure the navbar's padding accounts for the theme selector and menu button */
   /* Optional: Add any additional custom styles here */
 </style>
