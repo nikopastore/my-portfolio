@@ -1,45 +1,45 @@
-<!-- src/routes/+layout.svelte -->
 <script>
-  import '../app.css'; // Import global CSS
+  import '../app.css';
   import Nav from '$lib/components/Nav.svelte';
-  import ColorSchemeSelector from '$lib/components/ColorSchemeSelector.svelte';
   import { onMount } from 'svelte';
 
-  let colorScheme = 'light';
+  let colorScheme = 'light'; // Default theme mode
 
-  // Check if running in the browser
-  function isBrowser() {
-    return typeof window !== 'undefined' && typeof document !== 'undefined';
+  // Function to apply the color scheme to the page
+  function applyColorScheme() {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', colorScheme === 'dark');
+    }
   }
 
+  // Load saved theme from localStorage on mount
   onMount(() => {
-    if (isBrowser()) {
-      const savedTheme = localStorage.getItem('theme');
-      colorScheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      applyColorScheme(); // Apply theme on mount if in the browser
+    if (typeof localStorage !== 'undefined') {
+      colorScheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyColorScheme();
     }
   });
 
-  // Function to apply the color scheme to the document
-  function applyColorScheme() {
-    if (isBrowser()) {
-      document.documentElement.classList.toggle('dark', colorScheme === 'dark');
-      document.documentElement.style.setProperty('color-scheme', colorScheme);
-      localStorage.setItem('theme', colorScheme); // Persist the selected theme
-    }
+  // Reactive statement to apply and save color scheme changes
+  $: if (typeof localStorage !== 'undefined') {
+    applyColorScheme();
+    localStorage.setItem('theme', colorScheme);
   }
-
-  // Reactive statement to watch changes in colorScheme and apply them
-  $: if (isBrowser() && colorScheme) applyColorScheme();
 </script>
 
-<!-- Navigation Bar -->
+<!-- Navigation -->
 <Nav />
 
-<!-- Theme Selector -->
-<ColorSchemeSelector bind:colorScheme />
+<!-- Dropdown Theme Switcher -->
+<div class="theme-switcher">
+  <label for="theme-switcher">Choose Theme:</label>
+  <select id="theme-switcher" bind:value={colorScheme}>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>
+</div>
 
-<!-- Main Content Container -->
+<!-- Main Content -->
 <main class="w-full px-4 pt-20">
   <div class="max-w-6xl mx-auto">
     <slot />
@@ -52,5 +52,20 @@
 </footer>
 
 <style>
-  /* Any additional styles can go here */
+  /* Theme switcher dropdown styling */
+  .theme-switcher {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  #theme-switcher {
+    padding: 5px;
+    font-size: 1rem;
+    margin-left: 10px;
+  }
+  
+  label {
+    font-weight: bold;
+  }
 </style>
