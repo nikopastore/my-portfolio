@@ -1,7 +1,5 @@
-<!-- src/lib/components/Nav.svelte -->
 <script>
   import { onMount } from 'svelte';
-  import ColorSchemeSelector from '$lib/components/ColorSchemeSelector.svelte';
 
   let activeSection = 'home';
   let isMenuOpen = false;
@@ -61,11 +59,9 @@
         </a>
       {/if}
     {/each}
-    <ColorSchemeSelector />
   </div>
 
   <div class="md:hidden flex items-center">
-    <ColorSchemeSelector />
     <button on:click={() => isMenuOpen = !isMenuOpen} class="ml-2 focus:outline-none">
       {isMenuOpen ? "✕" : "☰"}
     </button>

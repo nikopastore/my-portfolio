@@ -1,5 +1,6 @@
-<!-- src/routes/+page.svelte -->
 <script>
+  import projects from '$lib/projects.json';
+
   // Contact Form State
   let email = '';
   let subject = '';
@@ -8,53 +9,60 @@
   // Handle Contact Form Submission
   function handleSubmit(event) {
     event.preventDefault();
-
     const mailtoLink = `mailto:npastore@ucsd.edu?` + new URLSearchParams({
       subject: subject || 'No Subject',
       body: `From: ${email}\n\n${body}`,
     });
-
     console.log('mailto URL:', mailtoLink);
     window.location.href = mailtoLink;
   }
 
-  // Projects Data
-  const projects = [
-    {
-      title: 'Project 1',
-      image: 'https://vis-society.github.io/labs/2/images/empty.svg',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      title: 'Project 2',
-      image: 'https://vis-society.github.io/labs/2/images/empty.svg',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      title: 'Project 3',
-      image: 'https://vis-society.github.io/labs/2/images/empty.svg',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-  ];
+  // GitHub Profile Data
+  let profileData = null;
+  let errorMessage = null;
+
+  // Fetch GitHub profile data
+  async function fetchProfileData() {
+    try {
+      const response = await fetch('https://api.github.com/users/nikopastore');
+      if (!response.ok) throw new Error('Network response was not ok');
+      profileData = await response.json();
+    } catch (error) {
+      errorMessage = `Error: ${error.message}`;
+    }
+  }
+
+  fetchProfileData(); // Call on component load
 </script>
 
 <!-- Home Section -->
 <section id="home" class="mb-16">
-  <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 text-center">Nikolai Pastore</h1>
-  <!-- svelte-ignore a11y_img_redundant_alt -->
+  <h1 class="text-4xl font-bold mb-4 text-gray-100 text-center">Nikolai Pastore</h1>
   <img
-  src="/images/WLDI3061.JPG"
-  alt="Photo of Nikolai Pastore"
-  class="rounded-full mb-6 w-32 md:w-48 lg:w-64 h-32 md:h-48 lg:h-64 object-cover mx-auto"
-/>
-
-
-
-  <p class="text-lg text-gray-800 dark:text-gray-200 text-center max-w-2xl mx-auto">
-    Welcome to my personal website and portfolio. I am excited to be in this
-    course and can't wait to learn new tools and skills that will help me in my
-    career.
+    src="/images/WLDI3061.JPG"
+    alt="Photo of Nikolai Pastore"
+    class="rounded-full mb-6 w-32 md:w-48 lg:w-64 h-32 md:h-48 lg:h-64 object-cover mx-auto"
+  />
+  <p class="text-lg text-white text-center max-w-2xl mx-auto">
+    Welcome to my personal website and portfolio. I am excited to be in this course and can't wait to learn new tools and skills that will help me in my career.
   </p>
+</section>
+
+<!-- GitHub Profile Section -->
+<section class="profile-section mb-16">
+  <h2 class="text-3xl font-semibold mb-6 text-center">GitHub Profile</h2>
+  {#if errorMessage}
+    <p class="text-red-500 text-center">{errorMessage}</p>
+  {:else if profileData}
+    <dl class="grid grid-cols-2 gap-4 text-center max-w-md mx-auto">
+      <div><dt class="font-bold">Followers:</dt><dd>{profileData.followers}</dd></div>
+      <div><dt class="font-bold">Following:</dt><dd>{profileData.following}</dd></div>
+      <div><dt class="font-bold">Public Repositories:</dt><dd>{profileData.public_repos}</dd></div>
+      <div><dt class="font-bold">Public Gists:</dt><dd>{profileData.public_gists}</dd></div>
+    </dl>
+  {:else}
+    <p class="text-center">Loading profile data...</p>
+  {/if}
 </section>
 
 <!-- Projects Section -->
@@ -71,7 +79,7 @@
   </div>
 </section>
 
-
+<!-- Resume Section -->
 <section id="cv" class="mb-16">
   <h2 class="text-3xl font-semibold mb-6">Resume</h2>
   <section>
@@ -81,43 +89,30 @@
       Email: <a href="mailto:npastore@ucsd.edu">npastore@ucsd.edu</a><br />
     </p>
   </section>
-  
   <section>
     <h2>Education</h2>
     <article>
       <h3>Bachelor of Psychology in Business Psychology</h3>
       <p>University of California, San Diego</p>
-      <p>
-        <time datetime="2020-09">September 2020</time> to
-        <time datetime="2022-06">June 2022</time>
-      </p>
+      <p><time datetime="2020-09">September 2020</time> to <time datetime="2022-06">June 2022</time></p>
     </article>
     <article>
       <h3>Master of Science in Applied Data Science</h3>
       <p>University of California, San Diego</p>
-      <p>
-        <time datetime="2023-09">September 2023</time> to
-        <time datetime="2025-06">June 2025</time>
-      </p>
+      <p><time datetime="2023-09">September 2023</time> to <time datetime="2025-06">June 2025</time></p>
     </article>
   </section>
-  
   <section>
     <h2>Work Experience</h2>
     <article>
       <h3>Data Engineering Internship at Routeware, Inc.</h3>
       <p>Built company-wide data dictionary and completed customer ad-hoc tasks</p>
-      <p>
-        <time datetime="2023-05">May 2023</time> to
-        <time datetime="2023-08">August 2023</time>
-      </p>
+      <p><time datetime="2023-05">May 2023</time> to <time datetime="2023-08">August 2023</time></p>
     </article>
     <article>
       <h3>Data Engineer at Routeware, Inc.</h3>
       <p>Currently working on scalable data solutions.</p>
-      <p>
-        <time datetime="2023-08">August 2023</time> to Present
-      </p>
+      <p><time datetime="2023-08">August 2023</time> to Present</p>
     </article>
   </section>
 </section>
@@ -125,46 +120,30 @@
 <!-- Contact Section -->
 <section id="contact" class="mb-16">
   <h2 class="text-3xl font-semibold mb-6">Contact</h2>
-  
   <form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-4 max-w-md mx-auto">
     <label class="flex flex-col">
-      <span class="text-gray-700 dark:text-gray-200">Your Email:</span>
-      <input
-        type="email"
-        name="email"
-        bind:value={email}
-        required
-        class="mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-700"
-      />
+      <span class="text-gray-700">Your Email:</span>
+      <input type="email" name="email" bind:value={email} required class="mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200" />
     </label>
     <label class="flex flex-col">
-      <span class="text-gray-700 dark:text-gray-200">Subject:</span>
-      <input
-        type="text"
-        name="subject"
-        bind:value={subject}
-        class="mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-700"
-      />
+      <span class="text-gray-700">Subject:</span>
+      <input type="text" name="subject" bind:value={subject} class="mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200" />
     </label>
     <label class="flex flex-col">
-      <span class="text-gray-700 dark:text-gray-200">Message:</span>
-      <textarea
-        name="body"
-        bind:value={body}
-        required
-        class="mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-700"
-        rows="5"
-      ></textarea>
+      <span class="text-gray-700">Message:</span>
+      <textarea name="body" bind:value={body} required class="mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200" rows="5"></textarea>
     </label>
-    <button
-      type="submit"
-      class="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors duration-200"
-    >
-      Send Message
-    </button>
+    <button type="submit" class="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors duration-200">Send Message</button>
   </form>
 </section>
 
 <style>
-  /* Add any additional global styles if necessary */
+  .profile-section {
+    padding: 2rem 1rem;
+  }
+  dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
 </style>
