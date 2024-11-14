@@ -3,24 +3,23 @@
     "title": "Portfolio Website",
     "year": "2024",
     "description": "A comprehensive portfolio website showcasing my projects, skills, and experiences.",
-    "image": "/images/project1.svg",
+    "image": "https://vis-society.github.io/labs/2/images/empty.svg",
     "link": "https://github.com/nikopastore/project-one"
   },
   {
     "title": "Project Two",
-    "year": "2023",
-    "description": "An innovative project focusing on data visualization and interactive user interfaces.",
-    "image": "/images/project2.svg",
+    "year": "2024",
+    "description": "lorem ipsum lorem ipsum",
+    "image": "https://vis-society.github.io/labs/2/images/empty.svg",
     "link": "https://github.com/nikopastore/project-two"
   },
   {
     "title": "Project Three",
-    "year": "2022",
-    "description": "A collaborative project aimed at developing scalable backend solutions.",
-    "image": "/images/project3.svg",
+    "year": "2024",
+    "description": "lorem ipsum lorem ipsum",
+    "image": "https://vis-society.github.io/labs/2/images/empty.svg",
     "link": "https://github.com/nikopastore/project-three"
   }
-  // ... more projects
 ]
 
   

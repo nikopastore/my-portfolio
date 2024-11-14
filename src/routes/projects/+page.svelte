@@ -54,5 +54,11 @@
   font-family: 'Baskerville', serif;
   font-variant-numeric: oldstyle-nums;
   margin-top: 0.5em;
+  transition: color 0.3s ease;
 }
+
+.project-year:hover {
+  color: #374151; /* Darker gray on hover */
+}
+
 </style>
