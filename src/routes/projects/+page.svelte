@@ -15,6 +15,7 @@
       return acc;
     }, {});
     projectsByYear = Object.values(yearData);
+    console.log('Projects By Year:', projectsByYear); // Debugging
 
     // Aggregate projects by technology
     const techCounts = projects.reduce((acc, project) => {
@@ -24,6 +25,7 @@
       return acc;
     }, {});
     projectsByTechnology = Object.entries(techCounts).map(([label, value]) => ({ label, value }));
+    console.log('Projects By Technology:', projectsByTechnology); // Debugging
   });
 </script>
 
