@@ -1,5 +1,6 @@
 <script>
   import projects from '$lib/projects.json';
+  import PieChart from '$lib/PieChart.svelte';
   
 
   // Contact Form State

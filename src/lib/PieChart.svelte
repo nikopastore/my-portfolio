@@ -1,4 +1,3 @@
-<!-- src/lib/PieChart.svelte -->
 <script>
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -39,14 +38,36 @@
         .append('g')
         .attr('class', 'arc');
   
+      // Tooltip setup
+      const tooltip = d3.select('body')
+        .append('div')
+        .attr('class', 'tooltip')
+        .style('position', 'absolute')
+        .style('background', '#fff')
+        .style('padding', '5px 10px')
+        .style('border', '1px solid #ccc')
+        .style('border-radius', '4px')
+        .style('pointer-events', 'none')
+        .style('opacity', 0);
+  
       arcs.append('path')
         .attr('d', arc)
         .attr('fill', d => color(d.data.label))
         .on('mouseover', function(event, d) {
           d3.select(this).transition().duration(200).attr('opacity', 0.7);
+          tooltip.transition().duration(200).style('opacity', 0.9);
+          tooltip.html(`<strong>${d.data.label}</strong>: ${d.data.value}`)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mousemove', function(event, d) {
+          tooltip
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
         })
         .on('mouseout', function(event, d) {
           d3.select(this).transition().duration(200).attr('opacity', 1);
+          tooltip.transition().duration(500).style('opacity', 0);
         });
   
       arcs.append('text')
@@ -72,6 +93,14 @@
   
     .arc text {
       pointer-events: none;
+    }
+  
+    /* Tooltip Styles */
+    .tooltip {
+      font-size: 0.8em;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      transition: opacity 0.3s ease;
     }
   </style>
   
