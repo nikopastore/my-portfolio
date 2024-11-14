@@ -53,5 +53,11 @@
       border-radius: 0.375em;
       margin-bottom: 0.5em;
     }
+
+    .project-year {
+  font-family: 'Baskerville', serif;
+  /* ... other styles */
+}
+
   </style>
   
