@@ -1,6 +1,7 @@
 <script>
   import projects from '$lib/projects.json';
-  import Project from '$lib/components/Project.svelte'; <!-- Import Project component -->
+  import Project from '$lib/components/Project.svelte'; // Import Project component
+
 
   // Contact Form State
   let email = '';
