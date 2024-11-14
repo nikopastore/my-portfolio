@@ -55,16 +55,24 @@
     }
 
     .project-year {
-    font-size: 0.9em;
-    color: #6b7280;
-    font-family: 'Baskerville', serif;
-    font-variant-numeric: oldstyle-nums;
-    margin-top: 0.5em;
-    transition: color 0.3s ease;
-    }
+    font-size: 0.9em; /* Slightly smaller font size */
+    color: #6b7280; /* Tailwind's gray-500 for subtlety */
+    font-family: 'Baskerville', serif; /* Elegant serif font */
+    font-variant-numeric: oldstyle-nums; /* Old-style numerals for aesthetic */
+    margin-top: 0.5em; /* Spacing above the year */
+  }
 
-    .project-year:hover {
-    color: #374151; /* Darker gray on hover */
-    }
+  /* Optional: Hover Effect for Project Cards */
+  article:hover .project-year {
+    color: #4f46e5; /* Tailwind's indigo-600 on hover */
+    transition: color 0.3s ease;
+  }
+
+  /* Optional: Flex Layout for Description and Year */
+  .project-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
   </style>
   
