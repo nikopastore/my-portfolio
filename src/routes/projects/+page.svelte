@@ -34,7 +34,7 @@
     {#each projects as project}
       <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
         <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
-        <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" />
+        <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" loading="lazy" />
         
         <!-- Description and Year Wrapper -->
         <div class="project-details">
