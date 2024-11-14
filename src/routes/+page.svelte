@@ -1,7 +1,6 @@
 <script>
   import projects from '$lib/projects.json';
-  import Project from '$lib/components/Project.svelte'; // Import Project component
-
+  
 
   // Contact Form State
   let email = '';
@@ -72,12 +71,11 @@
   <h2 class="text-3xl font-semibold mb-6">Projects</h2>
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
     {#each projects as project}
-      <Project
-        title="{project.title}"
-        description="{project.description}"
-        year="{project.year}" <!-- Pass the year prop -->
-        image="{project.image}" <!-- Pass the image prop -->
-      />
+      <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
+        <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
+        <img src="{project.image}" alt="{project.title}" class="mb-4 w-full h-48 object-cover rounded" />
+        <p class="text-md text-gray-700">{project.description}</p>
+      </article>
     {/each}
   </div>
 </section>
