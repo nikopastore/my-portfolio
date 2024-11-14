@@ -75,6 +75,7 @@
         <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
         <img src="{project.image}" alt="{project.title}" class="mb-4 w-full h-48 object-cover rounded" />
         <p class="text-md text-gray-700">{project.description}</p>
+        <p class="project-year">{project.year}</p>
       </article>
     {/each}
   </div>
