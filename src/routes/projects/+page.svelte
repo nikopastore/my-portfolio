@@ -33,7 +33,10 @@
         <img src="{project.image}" alt="{project.title}" class="w-full h-48 object-cover rounded-t-lg" />
         <div class="p-4">
           <h2 class="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{project.title}</h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">{project.description}</p>
+          <div class="project-details">
+            <p class="text-gray-600 dark:text-gray-400 mb-4">{project.description}</p>
+            <p class="project-year">{project.year}</p> <!-- Year displayed here -->
+          </div>
           <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline">
             View Project
           </a>
