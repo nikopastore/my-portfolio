@@ -1,6 +1,6 @@
 <!-- src/routes/+page.svelte -->
 <script>
-  import projects from '$lib/projects.json'; // Importing centralized projects data
+  import projects from '$lib/projects.json'; // Optional: If you need projects data here
 
   // Contact Form State
   let email = '';
