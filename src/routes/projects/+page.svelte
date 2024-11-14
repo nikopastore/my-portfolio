@@ -1,5 +1,6 @@
 <!-- src/routes/projects/+page.svelte -->
 <script>
+  import PieChart from '$lib/PieChart.svelte';
   const projects = [
     {
       title: 'Project One',
@@ -26,6 +27,21 @@
       technologies: ['Svelte', 'Tailwind CSS', 'D3.js']
     },
   ];
+    // Aggregate projects by year
+    const projectsByYear = Object.values(
+    projects.reduce((acc, project) => {
+      acc[project.year] = acc[project.year] || { label: project.year, value: 0 };
+      acc[project.year].value += 1;
+      return acc;
+    }, {}));
+    const technologyCounts = projects.reduce((acc, project) => {
+    project.technologies.forEach(tech => {
+      acc[tech] = (acc[tech] || 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  const projectsByTechnology = Object.entries(technologyCounts).map(([label, value]) => ({ label, value }));
 </script>
 
 <!-- Projects Section -->
@@ -54,6 +70,14 @@
         </a>
       </article>
     {/each}
+  </div>
+  <!-- Pie Chart Section -->
+  <div class="mt-12">
+    <h3 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h3>
+    <PieChart {projectsByYear} width={window.innerWidth < 640 ? 200 : 300}
+    height={window.innerWidth < 640 ? 200 : 300}
+    innerRadius={window.innerWidth < 640 ? 40 : 50}
+    outerRadius={window.innerWidth < 640 ? 80 : 100} />
   </div>
 </section>
 
