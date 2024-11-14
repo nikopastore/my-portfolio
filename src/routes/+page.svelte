@@ -76,6 +76,9 @@
         <img src="{project.image}" alt="{project.title}" class="mb-4 w-full h-48 object-cover rounded" />
         <p class="text-md text-gray-700">{project.description}</p>
         <p class="project-year">{project.year}</p>
+        <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
+          View Project
+        </a>
       </article>
     {/each}
   </div>
