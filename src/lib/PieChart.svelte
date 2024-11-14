@@ -1,10 +1,11 @@
+<!-- src/lib/PieChart.svelte -->
 <script>
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
-    export let data = [];
-    export let width = 400;
-    export let height = 400;
-    export let innerRadius = 0;
+    export let data = []; // Array of objects with 'label' and 'value'
+    export let width = 300; // Default width
+    export let height = 300; // Default height
+    export let innerRadius = 50; // For pie chart. Use >0 for a donut chart
     export let outerRadius = Math.min(width, height) / 2;
   
     let svgElement;
@@ -79,6 +80,7 @@
     });
   </script>
   
+  <!-- SVG Element -->
   <svg bind:this={svgElement} class="w-full h-auto"></svg>
   
   <style>
