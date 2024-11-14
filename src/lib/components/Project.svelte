@@ -9,7 +9,7 @@
     <h3 class="project-title">{title}</h3>
     <img src="{image}" alt="{title}" class="project-image" />
     <p class="project-description">{description}</p>
-    <p class="project-year">{year}</p>
+    <p class="project-year">{project.year}</p>
   </div>
   
   <style>
