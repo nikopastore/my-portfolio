@@ -2,7 +2,7 @@
 <script>
   import { onMount } from 'svelte';
   import PieChart from '$lib/PieChart.svelte';
-  import projects from '$lib/projects.json'; // Importing centralized projects data
+  import projects from '$lib/projects.json'; // Import centralized projects data
 
   let projectsByYear = [];
   let projectsByTechnology = [];
