@@ -56,7 +56,7 @@
 
     .project-year {
     font-size: 0.9em;
-    color: red;
+    color: #6b7280;
     font-family: 'Baskerville', serif;
     font-variant-numeric: oldstyle-nums;
     margin-top: 0.5em;
