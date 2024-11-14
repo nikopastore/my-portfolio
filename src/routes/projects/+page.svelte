@@ -1,52 +1,35 @@
 <!-- src/routes/projects/+page.svelte -->
 <script>
+  import { onMount } from 'svelte';
   import PieChart from '$lib/PieChart.svelte';
-  const projects = [
-    {
-      title: 'Project One',
-      year: '2024',
-      description: 'A comprehensive portfolio website showcasing my projects, skills, and experiences.',
-      image: '/images/project1.svg',
-      link: 'https://github.com/nikopastore/project-one',
-      technologies: ['Svelte', 'Tailwind CSS', 'D3.js']
-    },
-    {
-      title: 'Project Two',
-      year: '2023',
-      description: 'An innovative project focusing on data visualization and interactive user interfaces.',
-      image: '/images/project2.svg',
-      link: 'https://github.com/nikopastore/project-two',
-      technologies: ['Svelte', 'Tailwind CSS', 'D3.js']
-    },
-    {
-      title: 'Project Three',
-      year: '2022',
-      description: 'A collaborative project aimed at developing scalable backend solutions.',
-      image: '/images/project3.svg',
-      link: 'https://github.com/nikopastore/project-three',
-      technologies: ['Svelte', 'Tailwind CSS', 'D3.js']
-    },
-  ];
+  import projects from '$lib/projects.json'; // Importing centralized projects data
+
+  let projectsByYear = [];
+  let projectsByTechnology = [];
+
+  onMount(() => {
     // Aggregate projects by year
-    const projectsByYear = Object.values(
-    projects.reduce((acc, project) => {
+    const yearData = projects.reduce((acc, project) => {
       acc[project.year] = acc[project.year] || { label: project.year, value: 0 };
       acc[project.year].value += 1;
       return acc;
-    }, {}));
-    const technologyCounts = projects.reduce((acc, project) => {
-    project.technologies.forEach(tech => {
-      acc[tech] = (acc[tech] || 0) + 1;
-    });
-    return acc;
-  }, {});
+    }, {});
+    projectsByYear = Object.values(yearData);
 
-  const projectsByTechnology = Object.entries(technologyCounts).map(([label, value]) => ({ label, value }));
+    // Aggregate projects by technology
+    const techCounts = projects.reduce((acc, project) => {
+      project.technologies.forEach(tech => {
+        acc[tech] = (acc[tech] || 0) + 1;
+      });
+      return acc;
+    }, {});
+    projectsByTechnology = Object.entries(techCounts).map(([label, value]) => ({ label, value }));
+  });
 </script>
 
 <!-- Projects Section -->
 <section id="projects" class="mb-16">
-  <h2 class="text-3xl font-semibold mb-6">Projects</h2>
+  <h2 class="text-3xl font-semibold mb-6 text-center">Projects</h2>
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
     {#each projects as project}
       <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
@@ -58,26 +41,24 @@
           <p class="text-md text-gray-700">{project.description}</p>
           <p class="project-year">{project.year}</p>
           
-          <!-- Technologies Used (Optional) -->
+          <!-- Technologies Used -->
           {#if project.technologies}
             <p class="text-sm text-gray-500 mt-2">Technologies: {project.technologies.join(', ')}</p>
           {/if}
         </div>
         
-        <!-- View Project Link (Optional) -->
+        <!-- View Project Link -->
         <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
           View Project
         </a>
       </article>
     {/each}
   </div>
-  <!-- Pie Chart Section -->
+
+  <!-- Pie Chart Section: Projects by Year -->
   <div class="mt-12">
     <h3 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h3>
-    <PieChart {projectsByYear} width={window.innerWidth < 640 ? 200 : 300}
-    height={window.innerWidth < 640 ? 200 : 300}
-    innerRadius={window.innerWidth < 640 ? 40 : 50}
-    outerRadius={window.innerWidth < 640 ? 80 : 100} />
+    <PieChart {projectsByYear} width={300} height={300} innerRadius={50} outerRadius={100} />
   </div>
 </section>
 
@@ -98,7 +79,7 @@
     margin-top: 0.5em;
   }
 
-  /* Optional: Hover Effect for Project Year */
+  /* Hover Effect for Project Year */
   article:hover .project-year {
     color: #4f46e5; /* Tailwind's indigo-600 */
     transition: color 0.3s ease;
