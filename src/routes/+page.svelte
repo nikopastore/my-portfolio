@@ -1,7 +1,6 @@
+<!-- src/routes/+page.svelte -->
 <script>
-  import projects from '$lib/projects.json';
-  
-  
+  import projects from '$lib/projects.json'; // Optional: If you need projects data here
 
   // Contact Form State
   let email = '';
@@ -74,7 +73,7 @@
     {#each projects as project}
       <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
         <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
-        <img src="{project.image}" alt="{project.title}" class="mb-4 w-full h-48 object-cover rounded" />
+        <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" />
         <p class="text-md text-gray-700">{project.description}</p>
         <p class="project-year">{project.year}</p>
         <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
@@ -151,5 +150,20 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+  }
+
+  /* Styles for Project Year */
+  .project-year {
+    font-size: 0.9em;
+    color: #6b7280; /* Tailwind's gray-500 */
+    font-family: 'Baskerville', serif;
+    font-variant-numeric: oldstyle-nums;
+    margin-top: 0.5em;
+  }
+
+  /* Optional: Hover Effect for Project Year */
+  article:hover .project-year {
+    color: #4f46e5; /* Tailwind's indigo-600 */
+    transition: color 0.3s ease;
   }
 </style>
