@@ -1,6 +1,6 @@
 <!-- src/routes/+page.svelte -->
 <script>
-  import projects from '$lib/projects.json'; // Optional: If you need projects data here
+  import projects from '$lib/projects.json'; // Importing centralized projects data
 
   // Contact Form State
   let email = '';
@@ -68,12 +68,12 @@
 
 <!-- Projects Section -->
 <section id="projects" class="mb-16">
-  <h2 class="text-3xl font-semibold mb-6">Projects</h2>
+  <h2 class="text-3xl font-semibold mb-6 text-center">Projects</h2>
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
     {#each projects as project}
       <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
         <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
-        <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" />
+        <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" loading="lazy" />
         <p class="text-md text-gray-700">{project.description}</p>
         <p class="project-year">{project.year}</p>
         <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
@@ -161,7 +161,7 @@
     margin-top: 0.5em;
   }
 
-  /* Optional: Hover Effect for Project Year */
+  /* Hover Effect for Project Year */
   article:hover .project-year {
     color: #4f46e5; /* Tailwind's indigo-600 */
     transition: color 0.3s ease;
