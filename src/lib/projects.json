@@ -4,21 +4,25 @@
     "year": "2024",
     "description": "A comprehensive portfolio website showcasing my projects, skills, and experiences.",
     "image": "https://vis-society.github.io/labs/2/images/empty.svg",
-    "link": "https://github.com/nikopastore/project-one"
+    "link": "https://github.com/nikopastore/project-one",
+    "technologies": ["Svelte", "Tailwind CSS", "D3.js"]
   },
   {
     "title": "Project Two",
     "year": "2024",
     "description": "lorem ipsum lorem ipsum",
     "image": "https://vis-society.github.io/labs/2/images/empty.svg",
-    "link": "https://github.com/nikopastore/project-two"
+    "link": "https://github.com/nikopastore/project-two",
+    "technologies": ["React", "Chart.js", "Bootstrap"]
+
   },
   {
     "title": "Project Three",
     "year": "2024",
     "description": "lorem ipsum lorem ipsum",
     "image": "https://vis-society.github.io/labs/2/images/empty.svg",
-    "link": "https://github.com/nikopastore/project-three"
+    "link": "https://github.com/nikopastore/project-three",
+    "technologies": ["Node.js", "Express", "MongoDB"]
   }
 ]
 
