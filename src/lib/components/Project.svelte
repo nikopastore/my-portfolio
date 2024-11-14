@@ -55,9 +55,16 @@
     }
 
     .project-year {
-  font-family: 'Baskerville', serif;
-  /* ... other styles */
-}
+    font-size: 0.9em;
+    color: #6b7280;
+    font-family: 'Baskerville', serif;
+    font-variant-numeric: oldstyle-nums;
+    margin-top: 0.5em;
+    transition: color 0.3s ease;
+    }
 
+    .project-year:hover {
+    color: #374151; /* Darker gray on hover */
+    }
   </style>
   
