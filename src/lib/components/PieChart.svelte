@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
-  import { fly } from 'svelte/transition';
 
   export let data = []; // Array of objects with 'label' and 'value'
   export let width = 300;
@@ -10,7 +9,7 @@
   export let outerRadius = Math.min(width, height) / 2;
 
   let svgElement;
-  let tooltip = null;
+  let legendGroup;
 
   onMount(() => {
     if (data.length === 0) {
@@ -20,6 +19,7 @@
 
     // Clear any existing content
     d3.select(svgElement).selectAll('*').remove();
+    d3.select(legendGroup).selectAll('*').remove();
 
     const svg = d3.select(svgElement)
       .attr('viewBox', `0 0 ${width} ${height}`)
@@ -46,17 +46,7 @@
       .attr('d', arc)
       .attr('fill', d => color(d.data.label))
       .attr('stroke', 'white')
-      .style('stroke-width', '2px')
-      .on('mouseenter', (event, d) => {
-        const [x, y] = arc.centroid(d);
-        tooltip.style.left = `${x + width / 2 + 10}px`;
-        tooltip.style.top = `${y + height / 2 + 10}px`;
-        tooltip.innerHTML = `<strong>${d.data.label}</strong>: ${d.data.value}`;
-        tooltip.style.display = 'block';
-      })
-      .on('mouseleave', () => {
-        tooltip.style.display = 'none';
-      });
+      .style('stroke-width', '2px');
 
     // Add labels
     arcs.append('text')
@@ -66,29 +56,31 @@
       .attr('fill', '#fff')
       .text(d => d.data.label);
 
-    // Create Tooltip Element
-    tooltip = document.createElement('div');
-    tooltip.style.position = 'absolute';
-    tooltip.style.pointerEvents = 'none';
-    tooltip.style.background = 'rgba(0, 0, 0, 0.7)';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '5px 10px';
-    tooltip.style.borderRadius = '4px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.display = 'none';
-    tooltip.style.transform = 'translate(-50%, -100%)';
-    document.body.appendChild(tooltip);
-  });
+    // Create Legend
+    const legend = d3.select(legendGroup)
+      .attr('transform', `translate(20, 20)`);
 
-  // Cleanup Tooltip on Component Unmount
-  onDestroy(() => {
-    if (tooltip) {
-      document.body.removeChild(tooltip);
-    }
+    const legendItem = legend.selectAll('.legend-item')
+      .data(color.domain())
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (d, i) => `translate(0, ${i * 20})`);
+
+    legendItem.append('rect')
+      .attr('width', 18)
+      .attr('height', 18)
+      .attr('fill', color);
+
+    legendItem.append('text')
+      .attr('x', 24)
+      .attr('y', 14)
+      .text(d => d);
   });
 </script>
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-label="Pie Chart"></svg>
+<svg bind:this={legendGroup} class="w-full h-auto" aria-label="Pie Chart Legend"></svg>
 
 <style>
   svg {
@@ -98,5 +90,18 @@
 
   .arc text {
     pointer-events: none;
+    font-size: 10px; /* Adjust font size for smaller screens */
+  }
+
+  .legend-item rect {
+    stroke: #fff;
+    stroke-width: 1px;
+  }
+
+  @media (max-width: 600px) {
+    svg {
+      width: 100%;
+      height: 200px; /* Adjust height for mobile devices */
+    }
   }
 </style>
