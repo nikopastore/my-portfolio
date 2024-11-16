@@ -7,6 +7,7 @@
   const pages = [
     { title: 'Home', url: '#home' },
     { title: 'Projects', url: '#projects' },
+    { title: 'Meta-Analysis', url: '#meta' },
     { title: 'CV', url: '#cv' },
     { title: 'Contact', url: '#contact' },
     { title: 'GitHub Profile', url: 'https://github.com/nikopastore' },
