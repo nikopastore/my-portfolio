@@ -1,0 +1,4 @@
+line,depth,length,date,timezone,datetime,language,commit,file,year
+1,0,100,2023-10-01,-700,2023-10-01T12:34:56-07:00,JavaScript,abcd1234,src/App.svelte,2023
+2,1,50,2023-09-15,-700,2023-09-15T09:15:30-07:00,Python,efgh5678,src/utils.py,2023
+3,0,80,2022-05-20,-700,2022-05-20T14:20:10-07:00,Svelte,ijkl9012,src/Main.svelte,2022
