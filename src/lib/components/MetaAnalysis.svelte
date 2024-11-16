@@ -35,7 +35,7 @@
             let { author, date, time, timezone, datetime } = first;
             let ret = {
               id: commit,
-              url: 'https://github.com/nikopastore/your-repo/commit/' + commit, // Replace 'your-repo'
+              url: 'https://github.com/nikopastore/my-portfolio.git' + commit, // Replace 'your-repo'
               author,
               date,
               time,
