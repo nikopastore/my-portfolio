@@ -60,7 +60,7 @@
       .append('g')
       .attr('class', 'arc');
 
-    // Animate Pie Slices
+    // Draw Pie Slices
     arcs.append('path')
       .attr('fill', d => {
         if (d.data.label === selectedLabel) {
@@ -68,7 +68,6 @@
         }
         return color(d.data.label);
       })
-      .attr('tabindex', '0') // Make focusable for accessibility
       .attr('d', arc)
       .on('mouseover', (event, d) => {
         // Highlight hovered wedge and dim others
