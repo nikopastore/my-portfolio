@@ -15,6 +15,13 @@
     let peakActivityPeriod = 'N/A';
     let numberOfFiles = 0;
   
+    // Filter State
+    let selectedYear = null;
+    let selectedLanguage = null;
+  
+    // Derived Data
+    let filteredData = [];
+  
     onMount(async () => {
       try {
         // Fetch and parse the CSV file
@@ -110,10 +117,43 @@
         numberOfFiles = d3.groups(data, d => d.file).length;
         console.log('Number of Files:', numberOfFiles);
   
+        // Initialize filteredData
+        filteredData = data;
+  
       } catch (error) {
         console.error('Error loading or processing loc.csv:', error);
       }
     });
+  
+    // Handle slice clicks
+    function handleSliceClick(label) {
+      if (projectsByYear.some(p => p.label === label)) {
+        // If the clicked slice is a year
+        if (selectedYear === label) {
+          selectedYear = null; // Deselect if already selected
+        } else {
+          selectedYear = label;
+          selectedLanguage = null; // Reset language filter
+        }
+      } else if (languageBreakdown.some(l => l.label === label)) {
+        // If the clicked slice is a language
+        if (selectedLanguage === label) {
+          selectedLanguage = null; // Deselect if already selected
+        } else {
+          selectedLanguage = label;
+          selectedYear = null; // Reset year filter
+        }
+      }
+  
+      // Update filteredData based on selection
+      if (selectedYear) {
+        filteredData = data.filter(d => d.year === selectedYear);
+      } else if (selectedLanguage) {
+        filteredData = data.filter(d => d.language === selectedLanguage);
+      } else {
+        filteredData = data;
+      }
+    }
   </script>
   
   <section class="meta-analysis container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -160,21 +200,69 @@
     <section class="mb-16">
       <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Projects Distribution by Year</h2>
       {#if projectsByYear.length > 0}
-        <PieChart data={projectsByYear} width={400} height={400} innerRadius={50} outerRadius={150} />
+        <PieChart 
+          data={projectsByYear} 
+          width={400} 
+          height={400} 
+          innerRadius={50} 
+          outerRadius={150} 
+          on:sliceClick={handleSliceClick}
+        />
       {:else}
         <p class="text-center text-gray-600 dark:text-gray-400">No project data available.</p>
       {/if}
     </section>
     
     <!-- Pie Chart for Language Breakdown -->
-    <section>
+    <section class="mb-16">
       <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Language Breakdown</h2>
       {#if languageBreakdown.length > 0}
-        <PieChart data={languageBreakdown} width={400} height={400} innerRadius={50} outerRadius={150} />
+        <PieChart 
+          data={languageBreakdown} 
+          width={400} 
+          height={400} 
+          innerRadius={50} 
+          outerRadius={150} 
+          on:sliceClick={handleSliceClick}
+        />
       {:else}
         <p class="text-center text-gray-600 dark:text-gray-400">No language data available.</p>
       {/if}
     </section>
+    
+    <!-- Filtered Projects Display -->
+    {#if selectedYear || selectedLanguage}
+      <section class="filtered-projects mt-8">
+        <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">
+          {#if selectedYear}
+            Projects from {selectedYear}
+          {:else if selectedLanguage}
+            Projects using {selectedLanguage}
+          {/if}
+        </h2>
+        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {#each filteredData as project}
+            <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
+              <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
+              <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" loading="lazy" />
+              <p class="text-md text-gray-700">{project.description}</p>
+              <p class="project-year">{project.year}</p>
+              <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
+                View Project
+              </a>
+            </article>
+          {/each}
+        </div>
+        <div class="text-center mt-4">
+          <button 
+            on:click={() => { selectedYear = null; selectedLanguage = null; filteredData = data; }} 
+            class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200"
+          >
+            Clear Filter
+          </button>
+        </div>
+      </section>
+    {/if}
   </section>
   
   <style>
@@ -188,6 +276,31 @@
     .meta-analysis {
       padding-top: 2rem;
       padding-bottom: 2rem;
+    }
+  
+    /* Styles for Project Year */
+    .project-year {
+      font-size: 0.9em;
+      color: #6b7280; /* Tailwind's gray-500 */
+      font-family: 'Baskerville', serif;
+      font-variant-numeric: oldstyle-nums;
+      margin-top: 0.5em;
+    }
+  
+    /* Hover Effect for Project Year */
+    article:hover .project-year {
+      color: #4f46e5; /* Tailwind's indigo-600 */
+      transition: color 0.3s ease;
+    }
+  
+    /* Tooltip Styling */
+    .tooltip {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  
+    .tooltip:hover {
+      opacity: 1;
     }
   </style>
   
