@@ -212,6 +212,12 @@
   }
 
   .tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
