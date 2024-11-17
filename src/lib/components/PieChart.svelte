@@ -42,6 +42,7 @@
     // Create SVG for Pie Chart
     const svg = d3.select(svgElement)
       .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
@@ -71,6 +72,12 @@
       })
       .attr('stroke', d => d.data.label === selectedLabel ? '#000' : 'white') // Change stroke if selected
       .style('stroke-width', d => d.data.label === selectedLabel ? '3px' : '2px')
+      .attr('tabindex', '0') // Make focusable for accessibility
+      .on('keydown', (event, d) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          dispatch('sliceClick', d.data.label);
+        }
+      })
       .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
       .transition()
       .duration(1000)
@@ -98,6 +105,12 @@
           .on('click', (event, d) => {
             console.log('Slice clicked:', d.data.label); // Debugging
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+          })
+          .on('focus', (event, d) => {
+            // Optional: Add focus styles
+          })
+          .on('blur', () => {
+            // Optional: Remove focus styles
           });
       });
 
@@ -140,7 +153,10 @@
   });
 </script>
 
-<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc"></svg>
+<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
+  <title id="pieChartTitle">Pie Chart</title>
+  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
+</svg>
 <svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
@@ -165,5 +181,12 @@
 
   .tooltip:hover {
     opacity: 1;
+  }
+
+  /* Optional: Focus Styles for Accessibility */
+  .arc path:focus {
+    outline: none;
+    stroke: #000;
+    stroke-width: 3px;
   }
 </style>
