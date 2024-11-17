@@ -126,7 +126,8 @@
     });
   
     // Handle slice clicks
-    function handleSliceClick(label) {
+    function handleSliceClick(event) {
+      const label = event.detail; // Extract label from event.detail
       console.log('Slice clicked:', label); // Debugging
   
       if (projectsByYear.some(p => p.label === label)) {
