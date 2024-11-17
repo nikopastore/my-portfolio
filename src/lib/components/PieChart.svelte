@@ -8,6 +8,7 @@
   export let height = 300;
   export let innerRadius = 50; // >0 for a donut chart
   export let outerRadius = Math.min(width, height) / 2;
+  export let selectedLabel = null; // Selected slice label
 
   const dispatch = createEventDispatcher();
 
@@ -62,7 +63,12 @@
 
     // Animate Pie Slices
     arcs.append('path')
-      .attr('fill', d => color(d.data.label))
+      .attr('fill', d => {
+        if (d.data.label === selectedLabel) {
+          return d3.rgb(color(d.data.label)).brighter(0.7).toString(); // Highlight color
+        }
+        return color(d.data.label);
+      })
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
       .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
