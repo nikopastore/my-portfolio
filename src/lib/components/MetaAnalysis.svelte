@@ -7,7 +7,6 @@
     let data = [];
     let commits = [];
     let projectsByYear = [];
-    let languageBreakdown = [];
   
     // Additional Statistics
     let averageLinesPerCommit = 0;
@@ -17,7 +16,6 @@
   
     // Filter State
     let selectedYear = null;
-    let selectedLanguage = null;
     let searchQuery = '';
   
     // Pagination State
@@ -78,16 +76,8 @@
           data,
           v => v.length,
           d => d.year
-        ).map(([year, count]) => ({ label: year, value: count }));
+        ).map(([year, count]) => ({ label: year.toString(), value: count }));
         console.log('Projects By Year:', projectsByYear);
-  
-        // Compute language breakdown
-        languageBreakdown = Array.from(d3.rollups(
-          data,
-          v => v.length,
-          d => d.language
-        )).map(([language, lines]) => ({ label: language, value: lines }));
-        console.log('Language Breakdown:', languageBreakdown);
   
         // Calculate Average Lines per Commit
         averageLinesPerCommit = commits.length > 0 ? (data.length / commits.length).toFixed(2) : 0;
@@ -134,27 +124,17 @@
     });
   
     // Handle slice clicks
-    function handleSliceClick(event) {
-      const label = event.detail; // Extract label from event.detail
-      console.log('Slice clicked:', label); // Debugging
-  
-      if (projectsByYear.some(p => p.label === label)) {
-        // If the clicked slice is a year
-        selectedYear = selectedYear === label ? null : label;
-      } else if (languageBreakdown.some(l => l.label === label)) {
-        // If the clicked slice is a language
-        selectedLanguage = selectedLanguage === label ? null : label;
-      }
+    function handleSliceClick(label) {
+      selectedYear = selectedYear === label ? null : label;
   
       // Update filteredData based on selection and search
       filteredData = data.filter(d => {
-        let matchesYear = selectedYear ? d.year === selectedYear : true;
-        let matchesLanguage = selectedLanguage ? d.language === selectedLanguage : true;
+        let matchesYear = selectedYear ? d.year.toString() === selectedYear : true;
         let matchesSearch = searchQuery 
           ? d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             d.description.toLowerCase().includes(searchQuery.toLowerCase())
           : true;
-        return matchesYear && matchesLanguage && matchesSearch;
+        return matchesYear && matchesSearch;
       });
   
       // Reset to first page after filtering
@@ -162,19 +142,17 @@
       updatePagination();
   
       console.log('Selected Year:', selectedYear);
-      console.log('Selected Language:', selectedLanguage);
       console.log('Filtered Data Count:', filteredData.length);
     }
   
     // Handle Search Query Change
     $: filteredData = data.filter(d => {
-      let matchesYear = selectedYear ? d.year === selectedYear : true;
-      let matchesLanguage = selectedLanguage ? d.language === selectedLanguage : true;
+      let matchesYear = selectedYear ? d.year.toString() === selectedYear : true;
       let matchesSearch = searchQuery 
         ? d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           d.description.toLowerCase().includes(searchQuery.toLowerCase())
         : true;
-      return matchesYear && matchesLanguage && matchesSearch;
+      return matchesYear && matchesSearch;
     });
   
     // Update Pagination
@@ -207,11 +185,6 @@
         <dt class="font-bold text-gray-700 dark:text-gray-300">Projects by Year</dt>
         <dd class="text-gray-900 dark:text-white">{projectsByYear.length}</dd>
       </div>
-      <div>
-        <dt class="font-bold text-gray-700 dark:text-gray-300">Languages Used</dt>
-        <dd class="text-gray-900 dark:text-white">{languageBreakdown.length}</dd>
-      </div>
-      <!-- Additional Statistics -->
       <div>
         <dt class="font-bold text-gray-700 dark:text-gray-300">Average Lines per Commit</dt>
         <dd class="text-gray-900 dark:text-white">{averageLinesPerCommit}</dd>
@@ -250,7 +223,7 @@
           height={400} 
           innerRadius={50} 
           outerRadius={150} 
-          selectedLabel={selectedYear || selectedLanguage} 
+          selectedLabel={selectedYear} 
           on:sliceClick={handleSliceClick}
         />
       {:else}
@@ -258,34 +231,14 @@
       {/if}
     </section>
     
-    <!-- Pie Chart for Language Breakdown -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Language Breakdown</h2>
-      {#if languageBreakdown.length > 0}
-        <PieChart 
-          data={languageBreakdown} 
-          width={400} 
-          height={400} 
-          innerRadius={50} 
-          outerRadius={150} 
-          selectedLabel={selectedYear || selectedLanguage} 
-          on:sliceClick={handleSliceClick}
-        />
-      {:else}
-        <p class="text-center text-gray-600 dark:text-gray-400">No language data available.</p>
-      {/if}
-    </section>
-    
     <!-- Filtered Projects Display -->
-    {#if selectedYear || selectedLanguage || searchQuery}
+    {#if selectedYear || searchQuery}
       <section class="filtered-projects mt-8">
         <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">
-          {#if selectedYear && selectedLanguage}
-            Projects from {selectedYear} using {selectedLanguage}
+          {#if selectedYear && searchQuery}
+            Projects from {selectedYear} matching "{searchQuery}"
           {:else if selectedYear}
             Projects from {selectedYear}
-          {:else if selectedLanguage}
-            Projects using {selectedLanguage}
           {:else if searchQuery}
             Search Results for "{searchQuery}"
           {/if}
@@ -324,7 +277,7 @@
         <!-- Clear Filter Button -->
         <div class="text-center mt-6">
           <button 
-            on:click={() => { selectedYear = null; selectedLanguage = null; searchQuery = ''; filteredData = data; currentPage = 1; }} 
+            on:click={() => { selectedYear = null; searchQuery = ''; filteredData = data; currentPage = 1; }} 
             class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 dark:bg-red-600 dark:hover:bg-red-700"
           >
             Clear Filter
