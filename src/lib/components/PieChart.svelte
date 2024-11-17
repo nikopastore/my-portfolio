@@ -15,11 +15,6 @@
   let svgElement;
   let tooltip;
 
-  function getColor(label) {
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
-    return color(label);
-  }
-
   onMount(() => {
     if (data.length === 0) {
       console.warn('PieChart: No data provided');
@@ -49,6 +44,8 @@
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
     const pie = d3.pie()
       .sort(null)
       .value(d => d.value);
@@ -69,10 +66,9 @@
         if (d.data.label === selectedLabel) {
           return '#ff85b3'; // Miami Vice pink color for selected wedge
         }
-        return getColor(d.data.label);
+        return color(d.data.label);
       })
       .attr('d', arc)
-      .style('transition', '300ms') // Transition effect
       .on('mouseover', (event, d) => {
         // Highlight hovered wedge and dim others
         arcs.selectAll('path')
@@ -107,7 +103,7 @@
           if (d.data.label === selectedLabel) {
             return '#ff85b3'; // Miami Vice pink color for selected wedge
           }
-          return getColor(d.data.label);
+          return color(d.data.label);
         });
     }
   });
