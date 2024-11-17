@@ -221,7 +221,7 @@
           data={projectsByYear} 
           width={400} 
           height={400} 
-          innerRadius={50} 
+          innerRadius={0} 
           outerRadius={150} 
           selectedLabel={selectedYear} 
           on:sliceClick={handleSliceClick}
