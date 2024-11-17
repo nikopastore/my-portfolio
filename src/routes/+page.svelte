@@ -1,8 +1,8 @@
 <!-- src/routes/+page.svelte -->
 <script>
-  import Nav from '$lib/components/Nav.svelte'; // Import the updated Nav
-  import MetaAnalysis from '$lib/components/MetaAnalysis.svelte'; // Import MetaAnalysis component
-  import projects from '$lib/projects.json'; // Import centralized projects data
+  import Nav from '$lib/components/Nav.svelte'; // Navigation Component
+  import MetaAnalysis from '$lib/components/MetaAnalysis.svelte'; // Meta-Analysis Component
+  import projects from '$lib/projects.json'; // Projects Data
 
   // Contact Form State
   let email = '';
@@ -42,13 +42,14 @@
 <Nav />
 
 <main class="mt-20"> <!-- Adjust margin-top to prevent overlap with fixed nav -->
-  
+
   <!-- Home Section -->
   <section id="home" class="mb-16">
     <h1 class="text-4xl font-bold mb-4 text-gray-100 text-center">Nikolai Pastore</h1>
     <img
       src="/images/WLDI3061.JPG"
       alt="Photo of Nikolai Pastore"
+      loading="lazy"
       class="rounded-full mb-6 w-32 md:w-48 lg:w-64 h-32 md:h-48 lg:h-64 object-cover mx-auto"
     />
     <p class="text-lg text-white text-center max-w-2xl mx-auto">
@@ -100,34 +101,34 @@
   <section id="cv" class="mb-16">
     <h2 class="text-3xl font-semibold mb-6">Resume</h2>
     <section>
-      <h2>Personal Information</h2>
+      <h2 class="text-2xl font-semibold mb-2">Personal Information</h2>
       <p>
         Nikolai Pastore<br />
-        Email: <a href="mailto:npastore@ucsd.edu">npastore@ucsd.edu</a><br />
+        Email: <a href="mailto:npastore@ucsd.edu" class="text-indigo-500 hover:underline">npastore@ucsd.edu</a><br />
       </p>
     </section>
     <section>
-      <h2>Education</h2>
-      <article>
-        <h3>Bachelor of Psychology in Business Psychology</h3>
+      <h2 class="text-2xl font-semibold mb-2">Education</h2>
+      <article class="mb-4">
+        <h3 class="text-xl font-semibold">Bachelor of Psychology in Business Psychology</h3>
         <p>University of California, San Diego</p>
         <p><time datetime="2020-09">September 2020</time> to <time datetime="2022-06">June 2022</time></p>
       </article>
       <article>
-        <h3>Master of Science in Applied Data Science</h3>
+        <h3 class="text-xl font-semibold">Master of Science in Applied Data Science</h3>
         <p>University of California, San Diego</p>
         <p><time datetime="2023-09">September 2023</time> to <time datetime="2025-06">June 2025</time></p>
       </article>
     </section>
     <section>
-      <h2>Work Experience</h2>
-      <article>
-        <h3>Data Engineering Internship at Routeware, Inc.</h3>
+      <h2 class="text-2xl font-semibold mb-2">Work Experience</h2>
+      <article class="mb-4">
+        <h3 class="text-xl font-semibold">Data Engineering Internship at Routeware, Inc.</h3>
         <p>Built company-wide data dictionary and completed customer ad-hoc tasks</p>
         <p><time datetime="2023-05">May 2023</time> to <time datetime="2023-08">August 2023</time></p>
       </article>
       <article>
-        <h3>Data Engineer at Routeware, Inc.</h3>
+        <h3 class="text-xl font-semibold">Data Engineer at Routeware, Inc.</h3>
         <p>Currently working on scalable data solutions.</p>
         <p><time datetime="2023-08">August 2023</time> to Present</p>
       </article>
