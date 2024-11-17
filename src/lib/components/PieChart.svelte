@@ -1,194 +1,192 @@
 <!-- src/lib/components/PieChart.svelte -->
 <script>
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import * as d3 from 'd3';
 
   export let data = []; // Array of objects with 'label' and 'value'
-  export let width = 400;
-  export let height = 400;
-  export let innerRadius = 50;
-  export let outerRadius = 150;
-  export let selectedLabel = null; // Currently selected slice label
-  export let description = ''; // Description or title for the pie chart
+  export let width = 300;
+  export let height = 300;
+  export let innerRadius = 50; // >0 for a donut chart
+  export let outerRadius = Math.min(width, height) / 2;
+  export let selectedLabel = null; // Selected slice label
 
   const dispatch = createEventDispatcher();
 
   let svgElement;
-
-  // Define a color scale
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
-
-  // State to track hovered slice
-  let hoveredLabel = null;
+  let legendElement;
+  let tooltip;
 
   onMount(() => {
-    renderChart();
-    window.addEventListener('resize', renderChart);
-  });
+    if (data.length === 0) {
+      console.warn('PieChart: No data provided');
+      return;
+    }
 
-  onDestroy(() => {
-    window.removeEventListener('resize', renderChart);
-  });
+    // Create Tooltip Element
+    tooltip = d3.select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', 'rgba(0, 0, 0, 0.7)')
+      .style('color', '#fff')
+      .style('padding', '5px 10px')
+      .style('border-radius', '4px')
+      .style('font-size', '12px')
+      .style('display', 'none');
 
-  function renderChart() {
-    // Clear any existing SVG content
+    // Clear existing content
     d3.select(svgElement).selectAll('*').remove();
+    d3.select(legendElement).selectAll('*').remove();
 
-    const svg = d3
-      .select(svgElement)
-      .attr('width', width)
-      .attr('height', height)
+    // Create SVG for Pie Chart
+    const svg = d3.select(svgElement)
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')
-      .style('cursor', 'pointer');
-
-    const radius = Math.min(width, height) / 2;
-    const pie = d3.pie().sort(null).value(d => d.value);
-    const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
-
-    const g = svg
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-    const arcs = g
-      .selectAll('.arc')
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    const pie = d3.pie()
+      .sort(null)
+      .value(d => d.value);
+
+    const arc = d3.arc()
+      .innerRadius(innerRadius)
+      .outerRadius(outerRadius);
+
+    const arcs = svg.selectAll('.arc')
       .data(pie(data))
       .enter()
       .append('g')
       .attr('class', 'arc');
 
-    arcs
-      .append('path')
-      .attr('d', arc)
-      .attr('fill', d => color(d.data.label))
-      .attr('stroke', 'white')
-      .attr('stroke-width', 2)
-      .attr('data-label', d => d.data.label)
-      .on('click', (event, d) => {
-        const label = d.data.label;
-        dispatch('sliceClick', label);
+    // Animate Pie Slices
+    arcs.append('path')
+      .attr('fill', d => {
+        if (d.data.label === selectedLabel) {
+          return d3.rgb(color(d.data.label)).brighter(0.7).toString(); // Highlight color
+        }
+        return color(d.data.label);
       })
-      .on('mouseover', (event, d) => {
-        hoveredLabel = d.data.label;
-        renderChart(); // Re-render to apply hover effects
+      .attr('stroke', d => d.data.label === selectedLabel ? '#000' : 'white') // Change stroke if selected
+      .style('stroke-width', d => d.data.label === selectedLabel ? '3px' : '2px')
+      .attr('tabindex', '0') // Make focusable for accessibility
+      .on('keydown', (event, d) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          dispatch('sliceClick', d.data.label);
+        }
       })
-      .on('mouseout', (event, d) => {
-        hoveredLabel = null;
-        renderChart(); // Re-render to remove hover effects
+      .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
+      .transition()
+      .duration(1000)
+      .attrTween('d', function(d) {
+        const interpolate = d3.interpolate(this._current, d);
+        this._current = interpolate(1);
+        return function(t) {
+          return arc(interpolate(t));
+        };
+      })
+      .on('end', function(d) {
+        d3.select(this)
+          .on('mouseover', (event, d) => {
+            tooltip.style('display', 'block')
+              .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 25) + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('display', 'none');
+          })
+          .on('click', (event, d) => {
+            console.log('Slice clicked:', d.data.label); // Debugging
+            dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+          })
+          .on('focus', (event, d) => {
+            // Optional: Add focus styles
+          })
+          .on('blur', () => {
+            // Optional: Remove focus styles
+          });
       });
 
-    // Optional: Add labels to slices (uncomment if needed)
-    /*
-    arcs
-      .append('text')
+    // Add labels
+    arcs.append('text')
       .attr('transform', d => `translate(${arc.centroid(d)})`)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
-      .attr('fill', 'white')
+      .attr('fill', '#fff')
       .text(d => d.data.label);
-    */
 
-    // Apply styles based on selection and hover state
-    applyStyles();
+    // Create Legend
+    const legend = d3.select(legendElement)
+      .attr('transform', `translate(10, 10)`);
 
-    // Add Legend and Description
-    addLegendAndDescription(g);
-  }
-
-  function applyStyles() {
-    const svg = d3.select(svgElement);
-    const paths = svg.selectAll('path');
-
-    paths
-      .attr('fill', d => {
-        const isSelected = d.data.label === selectedLabel;
-        const isHovered = d.data.label === hoveredLabel;
-        if (isSelected) {
-          return '#ff7f0e'; // Universal "selected" color (e.g., orange)
-        } else if (isHovered) {
-          return color(d.data.label).brighter(0.5);
-        } else {
-          return color(d.data.label);
-        }
-      })
-      .attr('opacity', d => {
-        if (hoveredLabel) {
-          return d.data.label === hoveredLabel ? 1 : 0.5;
-        }
-        return 1;
-      });
-  }
-
-  function addLegendAndDescription(g) {
-    // Legend Positioning
-    const legendRectSize = 18;
-    const legendSpacing = 4;
-
-    // Create a group for the legend
-    const legendGroup = g.append('g')
-      .attr('class', 'legend')
-      .attr('transform', `translate(${outerRadius + 20}, ${-outerRadius})`); // Adjust as needed
-
-    // Add legend items
-    const legend = legendGroup.selectAll('.legend-item')
-      .data(data)
+    const legendItem = legend.selectAll('.legend-item')
+      .data(color.domain())
       .enter()
       .append('g')
       .attr('class', 'legend-item')
-      .attr('transform', (d, i) => `translate(0, ${i * (legendRectSize + legendSpacing)})`);
+      .attr('transform', (d, i) => `translate(0, ${i * 20})`);
 
-    // Add colored rectangles
-    legend.append('rect')
-      .attr('width', legendRectSize)
-      .attr('height', legendRectSize)
-      .style('fill', d => color(d.label))
-      .style('stroke', d => color(d.label));
+    legendItem.append('rect')
+      .attr('width', 18)
+      .attr('height', 18)
+      .attr('fill', color)
+      .attr('stroke', 'white')
+      .attr('stroke-width', '1px');
 
-    // Add labels
-    legend.append('text')
-      .attr('x', legendRectSize + legendSpacing)
-      .attr('y', legendRectSize - legendSpacing)
-      .text(d => d.label)
-      .attr('font-size', '12px')
-      .attr('fill', '#333');
+    legendItem.append('text')
+      .attr('x', 24)
+      .attr('y', 14)
+      .text(d => d);
+  });
 
-    // Add Description Box (optional)
-    if (description) {
-      g.append('text')
-        .attr('x', -width / 2 + 20) // Adjust positioning
-        .attr('y', -outerRadius - 30) // Adjust positioning
-        .attr('text-anchor', 'start')
-        .attr('font-size', '16px')
-        .attr('font-weight', 'bold')
-        .attr('fill', '#333')
-        .text(description);
+  onDestroy(() => {
+    if (tooltip) {
+      tooltip.remove();
     }
-  }
+  });
 </script>
 
-<svg bind:this={svgElement}></svg>
+<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
+  <title id="pieChartTitle">Pie Chart</title>
+  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
+</svg>
+<svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
-  /* Smooth transitions for fill and opacity */
-  path {
-    transition: fill 0.3s ease, opacity 0.3s ease;
+  svg {
+    max-width: 100%;
+    height: auto;
   }
 
-  /* Legend text styling */
-  .legend text {
-    font-size: 12px;
-    fill: #333;
+  .arc text {
+    pointer-events: none;
   }
 
-  /* Description styling */
-  .description {
-    font-size: 16px;
-    font-weight: bold;
-    fill: #333;
+  .legend-item rect {
+    stroke: #fff;
+    stroke-width: 1px;
   }
 
-  /* Optional: Adjust legend item hover effects */
-  .legend-item:hover text {
-    fill: #000;
+  .tooltip {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .tooltip:hover {
+    opacity: 1;
+  }
+
+  /* Optional: Focus Styles for Accessibility */
+  .arc path:focus {
+    outline: none;
+    stroke: #000;
+    stroke-width: 3px;
   }
 </style>
