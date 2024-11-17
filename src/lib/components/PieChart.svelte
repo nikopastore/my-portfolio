@@ -90,6 +90,7 @@
             tooltip.style('display', 'none');
           })
           .on('click', (event, d) => {
+            console.log('Slice clicked:', d.data.label); // Debugging
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
           });
       });
