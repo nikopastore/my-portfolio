@@ -69,8 +69,8 @@
         }
         return color(d.data.label);
       })
-      .attr('stroke', 'white')
-      .style('stroke-width', '2px')
+      .attr('stroke', d => d.data.label === selectedLabel ? '#000' : 'white') // Change stroke if selected
+      .style('stroke-width', d => d.data.label === selectedLabel ? '3px' : '2px')
       .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
       .transition()
       .duration(1000)
