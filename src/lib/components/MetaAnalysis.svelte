@@ -25,8 +25,9 @@
           length: Number(row.length),
           date: new Date(row.date + 'T00:00' + row.timezone),
           datetime: new Date(row.datetime),
-          language: row.language || 'Unknown', // Handle missing language fields
+          language: row.language || 'Unknown',
         }));
+        console.log('Fetched Data:', data);
   
         // Aggregate commits
         commits = d3.groups(data, (d) => d.commit)
@@ -35,7 +36,7 @@
             let { author, date, time, timezone, datetime } = first;
             let ret = {
               id: commit,
-              url: 'https://github.com/nikopastore/my-portfolio.git' + commit, // Replace 'your-repo'
+              url: 'https://github.com/nikopastore/your-repo/commit/' + commit, // Replace 'your-repo' with actual repo name
               author,
               date,
               time,
@@ -55,6 +56,7 @@
   
             return ret;
           });
+        console.log('Commits:', commits);
   
         // Aggregate projects by year
         projectsByYear = d3.rollups(
@@ -62,6 +64,7 @@
           v => v.length,
           d => d.year
         ).map(([year, count]) => ({ label: year, value: count }));
+        console.log('Projects By Year:', projectsByYear);
   
         // Compute language breakdown
         languageBreakdown = Array.from(d3.rollups(
@@ -69,9 +72,11 @@
           v => v.length,
           d => d.language
         )).map(([language, lines]) => ({ label: language, value: lines }));
+        console.log('Language Breakdown:', languageBreakdown);
   
         // Calculate Average Lines per Commit
         averageLinesPerCommit = commits.length > 0 ? (data.length / commits.length).toFixed(2) : 0;
+        console.log('Average Lines per Commit:', averageLinesPerCommit);
   
         // Determine Most Active Author
         const authorCounts = d3.rollups(
@@ -79,8 +84,10 @@
           v => v.length,
           d => d.author
         );
+        console.log('Author Counts:', authorCounts);
         const [activeAuthor] = d3.greatest(authorCounts, d => d[1]) || [];
         mostActiveAuthor = activeAuthor || 'N/A';
+        console.log('Most Active Author:', mostActiveAuthor);
   
         // Determine Peak Activity Period
         const workByPeriod = d3.rollups(
@@ -94,77 +101,78 @@
             return 'Night';
           }
         );
+        console.log('Work By Period:', workByPeriod);
         const [mostActivePeriod] = d3.greatest(workByPeriod, d => d[1]) || [];
         peakActivityPeriod = mostActivePeriod || 'N/A';
+        console.log('Peak Activity Period:', peakActivityPeriod);
   
         // Calculate Number of Files
         numberOfFiles = d3.groups(data, d => d.file).length;
+        console.log('Number of Files:', numberOfFiles);
   
-        console.log('Projects By Year:', projectsByYear);
-        console.log('Language Breakdown:', languageBreakdown);
       } catch (error) {
         console.error('Error loading or processing loc.csv:', error);
       }
     });
   </script>
   
-  <section class="meta-analysis container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-center">Meta-Analysis of Codebase</h1>
+  <section class="meta-analysis container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">Meta-Analysis of Codebase</h1>
     
     <!-- Summary Statistics -->
     <dl class="stats grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
       <div>
-        <dt>Total <abbr title="Lines of Code">LOC</abbr></dt>
-        <dd>{data.length}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Total <abbr title="Lines of Code">LOC</abbr></dt>
+        <dd class="text-gray-900 dark:text-white">{data.length}</dd>
       </div>
       <div>
-        <dt>Total Commits</dt>
-        <dd>{commits.length}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Total Commits</dt>
+        <dd class="text-gray-900 dark:text-white">{commits.length}</dd>
       </div>
       <div>
-        <dt>Projects by Year</dt>
-        <dd>{projectsByYear.length}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Projects by Year</dt>
+        <dd class="text-gray-900 dark:text-white">{projectsByYear.length}</dd>
       </div>
       <div>
-        <dt>Languages Used</dt>
-        <dd>{languageBreakdown.length}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Languages Used</dt>
+        <dd class="text-gray-900 dark:text-white">{languageBreakdown.length}</dd>
       </div>
       <!-- Additional Statistics -->
       <div>
-        <dt>Average Lines per Commit</dt>
-        <dd>{averageLinesPerCommit}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Average Lines per Commit</dt>
+        <dd class="text-gray-900 dark:text-white">{averageLinesPerCommit}</dd>
       </div>
       <div>
-        <dt>Most Active Author</dt>
-        <dd>{mostActiveAuthor}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Most Active Author</dt>
+        <dd class="text-gray-900 dark:text-white">{mostActiveAuthor}</dd>
       </div>
       <div>
-        <dt>Peak Activity Period</dt>
-        <dd>{peakActivityPeriod}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Peak Activity Period</dt>
+        <dd class="text-gray-900 dark:text-white">{peakActivityPeriod}</dd>
       </div>
       <div>
-        <dt>Number of Files</dt>
-        <dd>{numberOfFiles}</dd>
+        <dt class="font-bold text-gray-700 dark:text-gray-300">Number of Files</dt>
+        <dd class="text-gray-900 dark:text-white">{numberOfFiles}</dd>
       </div>
     </dl>
     
     <!-- Pie Chart for Projects by Year -->
     <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h2>
+      <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Projects Distribution by Year</h2>
       {#if projectsByYear.length > 0}
-        <PieChart data={projectsByYear} width={300} height={300} innerRadius={50} outerRadius={100} />
+        <PieChart data={projectsByYear} width={400} height={400} innerRadius={50} outerRadius={150} />
       {:else}
-        <p class="text-center">No project data available.</p>
+        <p class="text-center text-gray-600 dark:text-gray-400">No project data available.</p>
       {/if}
     </section>
     
     <!-- Pie Chart for Language Breakdown -->
     <section>
-      <h2 class="text-2xl font-semibold mb-4 text-center">Language Breakdown</h2>
+      <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Language Breakdown</h2>
       {#if languageBreakdown.length > 0}
-        <PieChart data={languageBreakdown} width={300} height={300} innerRadius={50} outerRadius={100} />
+        <PieChart data={languageBreakdown} width={400} height={400} innerRadius={50} outerRadius={150} />
       {:else}
-        <p class="text-center">No language data available.</p>
+        <p class="text-center text-gray-600 dark:text-gray-400">No language data available.</p>
       {/if}
     </section>
   </section>
