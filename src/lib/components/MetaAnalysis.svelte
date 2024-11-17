@@ -38,31 +38,30 @@
   
         // Aggregate commits
         commits = d3.groups(data, (d) => d.commit)
-          .map(([commit, lines]) => {
-            let first = lines[0];
-            let { author, date, time, timezone, datetime } = first;
-            let ret = {
-              id: commit,
-              url: 'https://github.com/nikopastore/your-repo/commit/' + commit, // Replace 'your-repo' with actual repo name
-              author,
-              date,
-              time,
-              timezone,
-              datetime,
-              hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
-              totalLines: lines.length,
-            };
-  
-            // Attach lines without making them enumerable
-            Object.defineProperty(ret, 'lines', {
-              value: lines,
-              configurable: true,
-              writable: true,
-              enumerable: false,
-            });
-  
-            return ret;
-          });
+  .map(([commit, lines]) => {
+    let first = lines[0];
+    let { date, timezone, datetime } = first; // Removed 'author'
+    let ret = {
+      id: commit,
+      url: 'https://github.com/yourusername/your-repo/commit/' + commit, // Replace with your repo
+      // author: 'Unknown', // Set to 'Unknown' or handle appropriately
+      date,
+      timezone,
+      datetime,
+      hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
+      totalLines: lines.length,
+    };
+
+    // Attach lines without making them enumerable
+    Object.defineProperty(ret, 'lines', {
+      value: lines,
+      configurable: true,
+      writable: true,
+      enumerable: false,
+    });
+
+    return ret;
+  });
         console.log('Commits:', commits);
   
         // Aggregate projects by year
