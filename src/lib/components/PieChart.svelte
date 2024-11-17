@@ -3,10 +3,10 @@
   import { onMount, onDestroy } from 'svelte';
   import * as d3 from 'd3';
 
-  export let data = [];
+  export let data = []; // Array of objects with 'label' and 'value'
   export let width = 300;
   export let height = 300;
-  export let innerRadius = 50;
+  export let innerRadius = 50; // >0 for a donut chart
   export let outerRadius = Math.min(width, height) / 2;
 
   let svgElement;
@@ -113,22 +113,10 @@
       tooltip.remove();
     }
   });
-  let selectedLabel = null;
-
-onMount(() => {
-  // ... existing D3.js setup
-
-  arcs.selectAll('path')
-    .on('click', (event, d) => {
-      selectedLabel = d.data.label;
-      // Add logic to highlight or filter based on selection
-      console.log(`Clicked on: ${d.data.label}`);
-    });
-});
 </script>
 
-<svg bind:this={svgElement} class="w-full h-auto" aria-label="Pie Chart"></svg>
-<svg bind:this={legendElement} class="w-full h-auto" aria-label="Pie Chart Legend"></svg>
+<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc"></svg>
+<svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
   svg {
@@ -138,23 +126,11 @@ onMount(() => {
 
   .arc text {
     pointer-events: none;
-    font-size: 10px; /* Adjust font size for smaller screens */
   }
 
-  .legend-item text {
-    font-size: 12px;
-    fill: #333;
-  }
-
-  @media (max-width: 600px) {
-    svg {
-      width: 100%;
-      height: 200px; /* Adjust height for mobile devices */
-    }
-
-    .legend-item text {
-      font-size: 10px;
-    }
+  .legend-item rect {
+    stroke: #fff;
+    stroke-width: 1px;
   }
 
   .tooltip {
@@ -164,9 +140,5 @@ onMount(() => {
 
   .tooltip:hover {
     opacity: 1;
-  }
-  .highlighted {
-    stroke: #000;
-    stroke-width: 3px;
   }
 </style>
