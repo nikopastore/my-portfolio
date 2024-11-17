@@ -1,15 +1,17 @@
+<!-- src/lib/components/PieChart.svelte -->
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import * as d3 from 'd3';
 
-  export let data = []; // Array of objects with 'label' and 'value'
+  export let data = [];
   export let width = 300;
   export let height = 300;
-  export let innerRadius = 50; // >0 for a donut chart
+  export let innerRadius = 50;
   export let outerRadius = Math.min(width, height) / 2;
 
   let svgElement;
-  let legendGroup;
+  let legendElement;
+  let tooltip;
 
   onMount(() => {
     if (data.length === 0) {
@@ -17,10 +19,24 @@
       return;
     }
 
-    // Clear any existing content
-    d3.select(svgElement).selectAll('*').remove();
-    d3.select(legendGroup).selectAll('*').remove();
+    // Create Tooltip Element
+    tooltip = d3.select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', 'rgba(0, 0, 0, 0.7)')
+      .style('color', '#fff')
+      .style('padding', '5px 10px')
+      .style('border-radius', '4px')
+      .style('font-size', '12px')
+      .style('display', 'none');
 
+    // Clear existing content
+    d3.select(svgElement).selectAll('*').remove();
+    d3.select(legendElement).selectAll('*').remove();
+
+    // Create SVG for Pie Chart
     const svg = d3.select(svgElement)
       .attr('viewBox', `0 0 ${width} ${height}`)
       .append('g')
@@ -46,7 +62,19 @@
       .attr('d', arc)
       .attr('fill', d => color(d.data.label))
       .attr('stroke', 'white')
-      .style('stroke-width', '2px');
+      .style('stroke-width', '2px')
+      .on('mouseover', (event, d) => {
+        tooltip.style('display', 'block')
+          .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+      })
+      .on('mousemove', (event) => {
+        tooltip
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY - 25) + 'px');
+      })
+      .on('mouseout', () => {
+        tooltip.style('display', 'none');
+      });
 
     // Add labels
     arcs.append('text')
@@ -57,8 +85,8 @@
       .text(d => d.data.label);
 
     // Create Legend
-    const legend = d3.select(legendGroup)
-      .attr('transform', `translate(20, 20)`);
+    const legend = d3.select(legendElement)
+      .attr('transform', `translate(10, 10)`);
 
     const legendItem = legend.selectAll('.legend-item')
       .data(color.domain())
@@ -70,17 +98,25 @@
     legendItem.append('rect')
       .attr('width', 18)
       .attr('height', 18)
-      .attr('fill', color);
+      .attr('fill', color)
+      .attr('stroke', 'white')
+      .attr('stroke-width', '1px');
 
     legendItem.append('text')
       .attr('x', 24)
       .attr('y', 14)
       .text(d => d);
   });
+
+  onDestroy(() => {
+    if (tooltip) {
+      tooltip.remove();
+    }
+  });
 </script>
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-label="Pie Chart"></svg>
-<svg bind:this={legendGroup} class="w-full h-auto" aria-label="Pie Chart Legend"></svg>
+<svg bind:this={legendElement} class="w-full h-auto" aria-label="Pie Chart Legend"></svg>
 
 <style>
   svg {
@@ -90,7 +126,6 @@
 
   .arc text {
     pointer-events: none;
-    font-size: 10px; /* Adjust font size for smaller screens */
   }
 
   .legend-item rect {
@@ -98,10 +133,7 @@
     stroke-width: 1px;
   }
 
-  @media (max-width: 600px) {
-    svg {
-      width: 100%;
-      height: 200px; /* Adjust height for mobile devices */
-    }
+  .tooltip {
+    transition: opacity 0.3s ease;
   }
 </style>
