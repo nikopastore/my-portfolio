@@ -54,7 +54,7 @@
 
     // Define color scale with domain based on data labels
     const color = d3.scaleOrdinal()
-      .domain(data.map(d => d.label))
+      .domain(data.map(d => d.label)) // Ensure all labels are included
       .range(d3.schemeCategory10);
 
     const pie = d3.pie()
@@ -116,6 +116,9 @@
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
           });
       });
+
+    // Remove text labels inside the pie chart
+    // (This section is intentionally omitted to ensure no labels appear inside the pie slices)
 
     // Create Legend
     const legend = d3.select(legendElement)
@@ -192,9 +195,15 @@
 <svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
-  svg {
-    max-width: 100%;
-    height: auto;
+  /* Add the following CSS rules to remove the outline and add smooth transitions */
+
+  path {
+    transition: fill 0.3s, opacity 0.3s;
+    outline: none;
+  }
+
+  path:focus {
+    outline: none;
   }
 
   .legend-item rect {
@@ -212,13 +221,4 @@
     outline: none;
     /* You can add alternative focus styles if desired */
   }
-  path:focus {
-  outline: none;
-}
-
-/* Add smooth transitions for fill color and opacity */
-path {
-  transition: fill 0.3s, opacity 0.3s;
-  outline: none;
-}
 </style>
