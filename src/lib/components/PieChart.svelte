@@ -65,13 +65,14 @@
       .attr('fill', d => color(d.data.label))
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
+      .each(function(d) { this._current = d; }) // Store the initial angles
       .transition()
       .duration(1000)
       .attrTween('d', function(d) {
-        const i = d3.interpolate(d.startAngle, d.endAngle);
+        const interpolate = d3.interpolate(this._current, d);
+        this._current = interpolate(1);
         return function(t) {
-          d.endAngle = i(t);
-          return arc(d);
+          return arc(interpolate(t));
         };
       })
       .on('end', function(d) {
