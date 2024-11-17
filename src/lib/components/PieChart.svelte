@@ -117,14 +117,6 @@
           });
       });
 
-    // Add labels
-    arcs.append('text')
-      .attr('transform', d => `translate(${arc.centroid(d)})`)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
-      .attr('fill', '#fff')
-      .text(d => d.data.label);
-
     // Create Legend
     const legend = d3.select(legendElement)
       .attr('transform', `translate(10, 10)`);
@@ -179,21 +171,30 @@
   function updateSliceColors() {
     d3.select(svgElement).selectAll('.arc path')
       .attr('fill', d => getFillColor(d.data.label))
-      .attr('opacity', d => (hoveredLabel && d.data.label !== hoveredLabel && d.data.label !== selectedLabel) ? 0.3 : 1);
+      .attr('opacity', d => {
+        if (hoveredLabel) {
+          if (d.data.label === hoveredLabel || d.data.label === selectedLabel) {
+            return 1;
+          } else {
+            return 0.3;
+          }
+        } else {
+          return 1;
+        }
+      });
   }
 </script>
 
+<!-- Pie Chart SVG -->
 <svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img"></svg>
+
+<!-- Legend SVG -->
 <svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
   svg {
     max-width: 100%;
     height: auto;
-  }
-
-  .arc text {
-    pointer-events: none;
   }
 
   .legend-item rect {
