@@ -16,6 +16,12 @@
   let legendElement;
   let tooltip;
 
+  // Define a universal selected color
+  const selectedColor = '#ff6347'; // You can change this to any color you prefer
+
+  // Internal state to track hovered slice
+  let hoveredLabel = null;
+
   onMount(() => {
     if (data.length === 0) {
       console.warn('PieChart: No data provided');
@@ -46,7 +52,10 @@
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    // Define color scale with domain based on data labels
+    const color = d3.scaleOrdinal()
+      .domain(data.map(d => d.label))
+      .range(d3.schemeCategory10);
 
     const pie = d3.pie()
       .sort(null)
@@ -64,14 +73,9 @@
 
     // Animate Pie Slices
     arcs.append('path')
-      .attr('fill', d => {
-        if (d.data.label === selectedLabel) {
-          return d3.rgb(color(d.data.label)).brighter(0.7).toString(); // Highlight color
-        }
-        return color(d.data.label);
-      })
-      .attr('stroke', d => d.data.label === selectedLabel ? '#000' : 'white') // Change stroke if selected
-      .style('stroke-width', d => d.data.label === selectedLabel ? '3px' : '2px')
+      .attr('fill', d => getFillColor(d.data.label))
+      .attr('stroke', 'none') // Remove stroke to eliminate the box
+      .attr('stroke-width', '0px') // Remove stroke width
       .attr('tabindex', '0') // Make focusable for accessibility
       .on('keydown', (event, d) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -91,6 +95,9 @@
       .on('end', function(d) {
         d3.select(this)
           .on('mouseover', (event, d) => {
+            hoveredLabel = d.data.label;
+            updateSliceColors();
+            // Show tooltip
             tooltip.style('display', 'block')
               .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
           })
@@ -99,18 +106,14 @@
               .style('left', (event.pageX + 10) + 'px')
               .style('top', (event.pageY - 25) + 'px');
           })
-          .on('mouseout', () => {
+          .on('mouseout', (event, d) => {
+            hoveredLabel = null;
+            updateSliceColors();
+            // Hide tooltip
             tooltip.style('display', 'none');
           })
           .on('click', (event, d) => {
-            console.log('Slice clicked:', d.data.label); // Debugging
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
-          })
-          .on('focus', (event, d) => {
-            // Optional: Add focus styles
-          })
-          .on('blur', () => {
-            // Optional: Remove focus styles
           });
       });
 
@@ -151,12 +154,36 @@
       tooltip.remove();
     }
   });
+
+  // Function to determine fill color based on selection and hover
+  function getFillColor(label) {
+    if (label === selectedLabel) {
+      return selectedColor;
+    } else if (label === hoveredLabel) {
+      return d3.rgb(colorScale(label)).brighter(0.7).toString();
+    } else {
+      return colorScale(label);
+    }
+  }
+
+  // Define colorScale for internal use
+  const colorScale = d3.scaleOrdinal()
+    .range(d3.schemeCategory10);
+
+  // Watch for data changes to update colorScale domain
+  $: colorScale.domain(data.map(d => d.label));
+
+  // Reactive statement to update slice colors based on selection and hover
+  $: updateSliceColors();
+
+  function updateSliceColors() {
+    d3.select(svgElement).selectAll('.arc path')
+      .attr('fill', d => getFillColor(d.data.label))
+      .attr('opacity', d => (hoveredLabel && d.data.label !== hoveredLabel && d.data.label !== selectedLabel) ? 0.3 : 1);
+  }
 </script>
 
-<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
-  <title id="pieChartTitle">Pie Chart</title>
-  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
-</svg>
+<svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img"></svg>
 <svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
@@ -179,14 +206,9 @@
     transition: opacity 0.3s ease;
   }
 
-  .tooltip:hover {
-    opacity: 1;
-  }
-
   /* Optional: Focus Styles for Accessibility */
   .arc path:focus {
     outline: none;
-    stroke: #000;
-    stroke-width: 3px;
+    /* You can add alternative focus styles if desired */
   }
 </style>
