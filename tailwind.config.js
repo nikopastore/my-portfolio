@@ -8,3 +8,11 @@ export default {
 
 	plugins: []
 };
+module.exports = {
+	darkMode: 'class', // Enables dark mode using the 'dark' class
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+	theme: {
+	  extend: {},
+	},
+	plugins: [],
+  };

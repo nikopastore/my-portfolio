@@ -1,6 +1,6 @@
 <!-- src/lib/components/PieChart.svelte -->
 <script>
-  import { onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import * as d3 from 'd3';
 
   export let data = []; // Array of objects with 'label' and 'value'
@@ -8,6 +8,8 @@
   export let height = 300;
   export let innerRadius = 50; // >0 for a donut chart
   export let outerRadius = Math.min(width, height) / 2;
+
+  const dispatch = createEventDispatcher();
 
   let svgElement;
   let legendElement;
@@ -74,6 +76,9 @@
       })
       .on('mouseout', () => {
         tooltip.style('display', 'none');
+      })
+      .on('click', (event, d) => {
+        dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
       });
 
     // Add labels
