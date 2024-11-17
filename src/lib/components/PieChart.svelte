@@ -126,14 +126,31 @@
 
   .arc text {
     pointer-events: none;
+    font-size: 10px; /* Adjust font size for smaller screens */
   }
 
-  .legend-item rect {
-    stroke: #fff;
-    stroke-width: 1px;
+  .legend-item text {
+    font-size: 12px;
+    fill: #333;
+  }
+
+  @media (max-width: 600px) {
+    svg {
+      width: 100%;
+      height: 200px; /* Adjust height for mobile devices */
+    }
+
+    .legend-item text {
+      font-size: 10px;
+    }
   }
 
   .tooltip {
+    opacity: 0;
     transition: opacity 0.3s ease;
+  }
+
+  .tooltip:hover {
+    opacity: 1;
   }
 </style>
