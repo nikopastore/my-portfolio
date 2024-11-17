@@ -212,6 +212,7 @@
           height={400} 
           innerRadius={50} 
           outerRadius={150} 
+          selectedLabel={selectedYear || selectedLanguage} 
           on:sliceClick={handleSliceClick}
         />
       {:else}
@@ -229,6 +230,7 @@
           height={400} 
           innerRadius={50} 
           outerRadius={150} 
+          selectedLabel={selectedYear || selectedLanguage} 
           on:sliceClick={handleSliceClick}
         />
       {:else}
