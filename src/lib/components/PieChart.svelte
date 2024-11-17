@@ -113,6 +113,18 @@
       tooltip.remove();
     }
   });
+  let selectedLabel = null;
+
+onMount(() => {
+  // ... existing D3.js setup
+
+  arcs.selectAll('path')
+    .on('click', (event, d) => {
+      selectedLabel = d.data.label;
+      // Add logic to highlight or filter based on selection
+      console.log(`Clicked on: ${d.data.label}`);
+    });
+});
 </script>
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-label="Pie Chart"></svg>
@@ -152,5 +164,9 @@
 
   .tooltip:hover {
     opacity: 1;
+  }
+  .highlighted {
+    stroke: #000;
+    stroke-width: 3px;
   }
 </style>
