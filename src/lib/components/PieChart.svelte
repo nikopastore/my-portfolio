@@ -65,7 +65,7 @@
       .attr('fill', d => color(d.data.label))
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
-      .each(function(d) { this._current = d; }) // Store the initial angles
+      .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
       .transition()
       .duration(1000)
       .attrTween('d', function(d) {
