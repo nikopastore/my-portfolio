@@ -127,6 +127,8 @@
   
     // Handle slice clicks
     function handleSliceClick(label) {
+      console.log('Slice clicked:', label); // Debugging
+  
       if (projectsByYear.some(p => p.label === label)) {
         // If the clicked slice is a year
         if (selectedYear === label) {
@@ -153,6 +155,10 @@
       } else {
         filteredData = data;
       }
+  
+      console.log('Selected Year:', selectedYear);
+      console.log('Selected Language:', selectedLanguage);
+      console.log('Filtered Data Count:', filteredData.length);
     }
   </script>
   
