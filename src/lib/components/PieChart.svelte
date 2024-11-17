@@ -60,25 +60,37 @@
       .append('g')
       .attr('class', 'arc');
 
+    // Animate Pie Slices
     arcs.append('path')
-      .attr('d', arc)
       .attr('fill', d => color(d.data.label))
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
-      .on('mouseover', (event, d) => {
-        tooltip.style('display', 'block')
-          .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+      .transition()
+      .duration(1000)
+      .attrTween('d', function(d) {
+        const i = d3.interpolate(d.startAngle, d.endAngle);
+        return function(t) {
+          d.endAngle = i(t);
+          return arc(d);
+        };
       })
-      .on('mousemove', (event) => {
-        tooltip
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top', (event.pageY - 25) + 'px');
-      })
-      .on('mouseout', () => {
-        tooltip.style('display', 'none');
-      })
-      .on('click', (event, d) => {
-        dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+      .on('end', function(d) {
+        d3.select(this)
+          .on('mouseover', (event, d) => {
+            tooltip.style('display', 'block')
+              .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 25) + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('display', 'none');
+          })
+          .on('click', (event, d) => {
+            dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+          });
       });
 
     // Add labels
