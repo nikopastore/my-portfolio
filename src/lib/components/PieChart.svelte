@@ -6,7 +6,7 @@
   export let data = []; // Array of objects with 'label' and 'value'
   export let width = 300;
   export let height = 300;
-  export let innerRadius = 50; // >0 for a donut chart
+  export let innerRadius = 0; // Set to 0 for a solid pie chart
   export let outerRadius = Math.min(width, height) / 2;
   export let selectedLabel = null; // Selected slice label
 
@@ -17,7 +17,7 @@
   let tooltip;
 
   // Define a universal selected color
-  const selectedColor = '#ff6347'; // You can change this to any color you prefer
+  const selectedColor = '#FF69B4'; // Miami Vice Pink (Hot Pink)
 
   // Internal state to track hovered slice
   let hoveredLabel = null;
@@ -117,9 +117,6 @@
           });
       });
 
-    // Remove text labels inside the pie chart
-    // (This section is intentionally omitted to ensure no labels appear inside the pie slices)
-
     // Create Legend
     const legend = d3.select(legendElement)
       .attr('transform', `translate(10, 10)`);
@@ -195,14 +192,14 @@
 <svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
-  /* Add the following CSS rules to remove the outline and add smooth transitions */
-
-  path {
-    transition: fill 0.3s, opacity 0.3s;
+  /* Remove focus outline from all path elements */
+  path:focus {
     outline: none;
   }
 
-  path:focus {
+  /* Add smooth transitions for fill color and opacity */
+  path {
+    transition: fill 0.3s, opacity 0.3s;
     outline: none;
   }
 
@@ -212,12 +209,6 @@
   }
 
   .tooltip {
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
