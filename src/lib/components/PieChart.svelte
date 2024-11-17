@@ -212,4 +212,13 @@
     outline: none;
     /* You can add alternative focus styles if desired */
   }
+  path:focus {
+  outline: none;
+}
+
+/* Add smooth transitions for fill color and opacity */
+path {
+  transition: fill 0.3s, opacity 0.3s;
+  outline: none;
+}
 </style>
