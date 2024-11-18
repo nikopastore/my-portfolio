@@ -7,9 +7,9 @@
   let isMenuOpen = false;
 
   const pages = [
-    { title: 'Home', url: '/' },
+    { title: 'Home', url: '#home' },
     { title: 'Projects', url: '#projects' },
-    { title: 'Meta-Analysis', url: '/meta' }, // Updated to direct route
+    { title: 'Meta-Analysis', url: '#meta' },
     { title: 'CV', url: '#cv' },
     { title: 'Contact', url: '#contact' },
     { title: 'GitHub Profile', url: 'https://github.com/nikopastore' },
@@ -116,6 +116,7 @@
 
 <style>
   /* Additional styling as needed */
+
   /* Active Link Styling */
   nav a.active {
     background-color: #4f46e5; /* Tailwind's indigo-600 */
