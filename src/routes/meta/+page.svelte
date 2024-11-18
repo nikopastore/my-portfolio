@@ -8,6 +8,7 @@
     let commits = [];
     let projectsByYear = [];
     let languageBreakdown = [];
+    let selectedLabel = null;
 
     onMount(async () => {
         // Read the CSV file
@@ -59,6 +60,10 @@
             d => d.language
         )).map(([language, lines]) => ({ label: language, value: lines }));
     });
+
+    function handleSliceClick(event) {
+        selectedLabel = event.detail;
+    }
 </script>
 
 <section id="meta" class="mb-16">
@@ -94,7 +99,8 @@
             height={400} 
             innerRadius={0} 
             outerRadius={150} 
-            on:sliceClick="{handleSliceClick}"
+            selectedLabel={selectedLabel} 
+            on:sliceClick={handleSliceClick}
         />
     </section>
 
@@ -106,7 +112,8 @@
             height={400} 
             innerRadius={0} 
             outerRadius={150} 
-            on:sliceClick="{handleSliceClick}"
+            selectedLabel={selectedLabel} 
+            on:sliceClick={handleSliceClick}
         />
     </section>
 
