@@ -37,10 +37,10 @@
                 .range([usableArea.bottom, usableArea.top])
                 .nice();
 
-            // Create axes
+            // Create X-axis with adjusted ticks and format
             const xAxis = d3.axisBottom(xScale)
-                .ticks(d3.timeDay.every(1))
-                .tickFormat(d3.timeFormat('%b %d'));
+                .ticks(d3.timeWeek.every(1)) // Adjust tick frequency
+                .tickFormat(d3.timeFormat('%b %d, %Y')); // Change format to include month, day, and year
 
             const yAxis = d3.axisLeft(yScale)
                 .ticks(12)
@@ -54,6 +54,7 @@
         }
     });
 </script>
+
 
 <section class="scatterplot-section container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Commits by Time of Day</h2>
