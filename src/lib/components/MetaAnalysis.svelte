@@ -1,131 +1,200 @@
+<!-- src/lib/components/MetaAnalysis.svelte -->
 <script>
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
     import PieChart from './PieChart.svelte'; // Ensure correct path
 
     let data = [];
-    let width = 1000;
-    let height = 600;
-    let margin = { top: 10, right: 10, bottom: 50, left: 70 };
-    let usableArea = {
-        top: margin.top,
-        right: width - margin.right,
-        bottom: height - margin.bottom,
-        left: margin.left,
-    };
-    usableArea.width = usableArea.right - usableArea.left;
-    usableArea.height = usableArea.bottom - usableArea.top;
+    let commits = [];
+    let projectsByYear = [];
 
-    let xScale, yScale;
-    let xAxisGroup, yAxisGroup;
-    let tooltipVisible = false;
-    let tooltipContent = {};
-    let tooltipStyle = { top: '0px', left: '0px' };
+    // Additional Statistics
+    let averageLinesPerCommit = 0;
+    let mostActiveAuthor = 'N/A';
+    let peakActivityPeriod = 'N/A';
+    let numberOfFiles = 0;
+
+    // Filter State
+    let selectedYear = null;
+    let searchQuery = '';
+
+    // Pagination State
+    let currentPage = 1;
+    const projectsPerPage = 6;
+    let totalPages = 1;
+    let paginatedProjects = [];
+
+    // Derived Data
+    let filteredData = [];
 
     onMount(async () => {
         try {
+            // Fetch and parse the CSV file
             data = await d3.csv('/loc.csv', (row) => ({
                 ...row,
+                line: Number(row.line),
+                depth: Number(row.depth),
+                length: Number(row.length),
+                date: new Date(row.date + 'T00:00' + row.timezone),
                 datetime: new Date(row.datetime),
+                language: row.language || 'Unknown',
+                year: Number(row.year),
                 author: row.author || 'Unknown',
-                commit: row.commit || 'N/A',
             }));
+            console.log('Fetched Data:', data);
 
-            xScale = d3.scaleTime()
-                .domain(d3.extent(data, d => d.datetime))
-                .range([usableArea.left, usableArea.right])
-                .nice();
+            // Aggregate projects by year
+            projectsByYear = d3.rollups(
+                data,
+                v => v.length,
+                d => d.year
+            ).map(([year, count]) => ({ label: year.toString(), value: count }));
+            console.log('Projects By Year:', projectsByYear);
 
-            yScale = d3.scaleLinear()
-                .domain([0, 24])
-                .range([usableArea.bottom, usableArea.top])
-                .nice();
-
-            const xAxis = d3.axisBottom(xScale)
-                .ticks(d3.timeYear.every(0.5))
-                .tickFormat(d3.timeFormat('%b %Y'));
-
-            const yAxis = d3.axisLeft(yScale)
-                .ticks(12)
-                .tickFormat(d => `${String(d).padStart(2, '0')}:00`);
-
-            d3.select(xAxisGroup).call(xAxis);
-            d3.select(yAxisGroup).call(yAxis);
+            // Initialize filteredData
+            filteredData = data;
+            updatePagination();
         } catch (error) {
             console.error('Error loading or processing loc.csv:', error);
         }
     });
 
-    function showTooltip(event, commit) {
-        tooltipContent = {
-            id: commit.commit,
-            datetime: commit.datetime.toLocaleString(),
-            author: commit.author,
-        };
-        tooltipVisible = true;
-        tooltipStyle = {
-            top: `${event.clientY + 10}px`,
-            left: `${event.clientX + 10}px`,
-        };
+    // Handle slice clicks
+    function handleSliceClick(label) {
+        // Toggle the selected year filter
+        selectedYear = selectedYear === label ? null : label;
+
+        // Update filteredData based on selection and search
+        updateFilteredData();
+
+        console.log('Selected Year:', selectedYear);
+        console.log('Filtered Data Count:', filteredData.length);
     }
 
-    function hideTooltip() {
-        tooltipVisible = false;
+    // Handle Search Query Change
+    $: updateFilteredData();
+
+    // Update Filtered Data
+    function updateFilteredData() {
+        filteredData = data.filter(d => {
+            let matchesYear = selectedYear ? d.year.toString() === selectedYear : true;
+            let matchesSearch = searchQuery 
+                ? d.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  d.description?.toLowerCase().includes(searchQuery.toLowerCase())
+                : true;
+            return matchesYear && matchesSearch;
+        });
+
+        // Reset to first page after filtering
+        currentPage = 1;
+        updatePagination();
     }
+
+    // Update Pagination
+    function updatePagination() {
+        totalPages = Math.ceil(filteredData.length / projectsPerPage) || 1;
+        paginatedProjects = filteredData.slice(
+            (currentPage - 1) * projectsPerPage,
+            currentPage * projectsPerPage
+        );
+    }
+
+    // Watch for changes in filteredData or currentPage
+    $: updatePagination();
 </script>
-
-<section class="scatterplot-section container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Commits by Time of Day</h2>
-
-    <svg viewBox={`0 0 ${width} ${height}`} class="scatterplot">
-        <g class="x-axis" transform={`translate(0, ${usableArea.bottom})`} bind:this={xAxisGroup} />
-        <g class="y-axis" transform={`translate(${usableArea.left}, 0)`} bind:this={yAxisGroup} />
-
-        <!-- Scatterplot Circles -->
-        <g class="dots">
-            {#each data as commit}
-                <circle
-                    cx={xScale(commit.datetime)}
-                    cy={yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60)}
-                    r="5"
-                    fill="steelblue"
-                    on:mouseenter={(event) => showTooltip(event, commit)}
-                    on:mouseleave={hideTooltip}
-                />
-            {/each}
-        </g>
-    </svg>
-
-    <!-- Tooltip -->
-    {#if tooltipVisible}
-        <div class="tooltip" style="top: {tooltipStyle.top}; left: {tooltipStyle.left};">
-            <p><strong>Commit ID:</strong> {tooltipContent.id}</p>
-            <p><strong>Date & Time:</strong> {tooltipContent.datetime}</p>
-            <p><strong>Author:</strong> {tooltipContent.author}</p>
-        </div>
+  
+<section class="meta-analysis container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">Meta-Analysis of Codebase</h1>
+    
+    <!-- Summary Statistics -->
+    <dl class="stats grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
+      <!-- Statistics go here -->
+    </dl>
+    
+    <!-- Search Bar -->
+    <div class="search-bar mb-6">
+      <input 
+        type="text" 
+        bind:value={searchQuery} 
+        placeholder="Search projects..." 
+        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+      />
+    </div>
+    
+    <!-- Pie Chart for Projects by Year -->
+    <section class="mb-16">
+        <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Projects Distribution by Year</h2>
+        {#if projectsByYear.length > 0}
+            <PieChart 
+                data={projectsByYear} 
+                width={400} 
+                height={400} 
+                innerRadius={0} 
+                outerRadius={150} 
+                selectedLabel={selectedYear} 
+                on:sliceClick={handleSliceClick}
+            />
+        {:else}
+            <p class="text-center text-gray-600 dark:text-gray-400">No project data available.</p>
+        {/if}
+    </section>
+    
+    <!-- Filtered Projects Display -->
+    {#if selectedYear || searchQuery}
+        <section class="filtered-projects mt-8">
+            <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">
+                {#if selectedYear && searchQuery}
+                    Projects from {selectedYear} matching "{searchQuery}"
+                {:else if selectedYear}
+                    Projects from {selectedYear}
+                {:else if searchQuery}
+                    Search Results for "{searchQuery}"
+                {/if}
+            </h2>
+            {#if paginatedProjects.length > 0}
+                <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                    {#each paginatedProjects as project}
+                        <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300 dark:border-gray-700">
+                            <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">{project.title}</h3>
+                            <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" loading="lazy" />
+                            <p class="text-md text-gray-700 dark:text-gray-300">{project.description}</p>
+                            <p class="project-year">{project.year}</p>
+                            <a href="{project.link}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline mt-2 block">
+                                View Project
+                            </a>
+                        </article>
+                    {/each}
+                </div>
+                <!-- Pagination Controls -->
+                {#if totalPages > 1}
+                    <div class="pagination mt-6 flex justify-center space-x-2">
+                        {#each Array(totalPages) as _, index}
+                            <button 
+                                on:click={() => currentPage = index + 1} 
+                                class="px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600"
+                                class:selected={currentPage === index + 1}
+                            >
+                                {index + 1}
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
+            {:else}
+                <p class="text-center text-gray-600 dark:text-gray-400">No projects match your criteria.</p>
+            {/if}
+            <!-- Clear Filter Button -->
+            <div class="text-center mt-6">
+                <button 
+                    on:click={() => { selectedYear = null; searchQuery = ''; filteredData = data; currentPage = 1; }} 
+                    class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 dark:bg-red-600 dark:hover:bg-red-700"
+                >
+                    Clear Filter
+                </button>
+            </div>
+        </section>
     {/if}
 </section>
-
+  
 <style>
-    .scatterplot {
-        overflow: visible;
-    }
-    .scatterplot circle {
-        transition: 0.2s;
-        fill-opacity: 0.7;
-    }
-    .scatterplot circle:hover {
-        transform: scale(1.5);
-        fill-opacity: 1;
-    }
-    .tooltip {
-        position: fixed;
-        background: #fff;
-        border: 1px solid #ddd;
-        padding: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        font-size: 12px;
-        pointer-events: none;
-    }
+    /* Styles go here, as per the last version */
 </style>
