@@ -115,7 +115,9 @@
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
             selectedLabel = d.data.label; // Update selected label
             arcs.selectAll('path')
-              .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label));
+              .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label))
+              .style('stroke', 'white') // Ensure no box border appears
+              .style('stroke-width', '2px');
           })
           .on('focus', (event, d) => {
             // Optional: Add focus styles
@@ -128,7 +130,10 @@
     // Create Legend
     const legend = d3.select(legendElement)
       .attr('transform', `translate(0, ${height + 20})`)
-      .attr('class', 'legend-container');
+      .attr('class', 'legend-container')
+      .style('display', 'flex')
+      .style('flex-wrap', 'wrap')
+      .style('justify-content', 'center');
 
     const legendItem = legend.selectAll('.legend-item')
       .data(pie(data))
