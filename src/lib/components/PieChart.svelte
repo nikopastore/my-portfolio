@@ -143,7 +143,7 @@
   }
 
   path {
-    transition: fill 300ms, opacity 300ms;
+    transition: fill 300ms, opacity 300ms, stroke-width 300ms;
     outline: none;
   }
 
