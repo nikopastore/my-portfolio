@@ -112,12 +112,12 @@
               .style('opacity', 1);
           })
           .on('click', (event, d) => {
-            dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
             selectedLabel = d.data.label; // Update selected label
+            dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
             arcs.selectAll('path')
               .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label))
-              .style('stroke', 'none') // Remove box border around selected wedge
-              .style('stroke-width', '2px');
+              .style('stroke-width', '2px')
+              .attr('stroke', 'white'); // Remove box border around selected wedge
           })
           .on('focus', (event, d) => {
             // Optional: Add focus styles
