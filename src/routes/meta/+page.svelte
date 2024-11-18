@@ -1,4 +1,3 @@
-<!-- src/routes/meta/+page.svelte -->
 <script>
     import * as d3 from 'd3';
     import { onMount } from 'svelte';
@@ -9,6 +8,7 @@
     let projectsByYear = [];
     let languageBreakdown = [];
     let selectedLabel = null;
+    let avgFileLength, maxDepth, avgDepth, longestLineLength;
 
     onMount(async () => {
         // Read the CSV file
@@ -21,6 +21,7 @@
             datetime: new Date(row.datetime),
         }));
 
+        // Group commits
         commits = d3.groups(data, (d) => d.commit)
             .map(([commit, lines]) => {
                 let first = lines[0];
@@ -47,6 +48,13 @@
                 return ret;
             });
 
+        // Calculate additional stats
+        avgFileLength = d3.mean(data, d => d.length).toFixed(2);
+        maxDepth = d3.max(data, d => d.depth);
+        avgDepth = d3.mean(data, d => d.depth).toFixed(2);
+        longestLineLength = d3.max(data, d => d.line);
+
+        // Projects by year
         const yearData = data.reduce((acc, project) => {
             acc[project.year] = acc[project.year] || { label: project.year, value: 0 };
             acc[project.year].value += 1;
@@ -54,6 +62,7 @@
         }, {});
         projectsByYear = Object.values(yearData);
 
+        // Language breakdown
         languageBreakdown = Array.from(d3.rollups(
             data,
             v => v.length,
@@ -88,6 +97,22 @@
         <div>
             <dt>Languages Used</dt>
             <dd>{languageBreakdown.length}</dd>
+        </div>
+        <div>
+            <dt>Average File Length</dt>
+            <dd>{avgFileLength}</dd>
+        </div>
+        <div>
+            <dt>Maximum Depth</dt>
+            <dd>{maxDepth}</dd>
+        </div>
+        <div>
+            <dt>Average Depth</dt>
+            <dd>{avgDepth}</dd>
+        </div>
+        <div>
+            <dt>Longest Line Length</dt>
+            <dd>{longestLineLength}</dd>
         </div>
     </dl>
 
