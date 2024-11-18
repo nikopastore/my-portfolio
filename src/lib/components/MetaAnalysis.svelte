@@ -7,10 +7,9 @@
     let commits = [];
     let projectsByYear = [];
 
-    // SVG properties for the scatterplot
     let width = 1000;
     let height = 600;
-    let margin = { top: 10, right: 10, bottom: 30, left: 50 };
+    let margin = { top: 10, right: 10, bottom: 50, left: 70 }; // Adjusted for axis titles
     let usableArea = {
         top: margin.top,
         right: width - margin.right,
@@ -24,7 +23,6 @@
 
     onMount(async () => {
         try {
-            // Fetch and parse the CSV file
             data = await d3.csv('/loc.csv', (row) => ({
                 ...row,
                 line: Number(row.line),
@@ -37,13 +35,11 @@
                 author: row.author || 'Unknown',
             }));
 
-            // Create X scale (date scale)
             xScale = d3.scaleTime()
                 .domain(d3.extent(data, d => d.datetime))
                 .range([usableArea.left, usableArea.right])
                 .nice();
 
-            // Create Y scale (hour of the day)
             yScale = d3.scaleLinear()
                 .domain([0, 24])
                 .range([usableArea.bottom, usableArea.top])
@@ -58,6 +54,27 @@
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Commits by Time of Day</h2>
 
     <svg viewBox={`0 0 ${width} ${height}`} class="scatterplot">
+        <!-- X Axis Title -->
+        <text
+            x={width / 2}
+            y={height - 10}
+            text-anchor="middle"
+            class="axis-title"
+        >
+            Date of Commit
+        </text>
+
+        <!-- Y Axis Title -->
+        <text
+            x={-height / 2}
+            y={20}
+            transform="rotate(-90)"
+            text-anchor="middle"
+            class="axis-title"
+        >
+            Time of Day
+        </text>
+
         <g class="dots">
             {#each data as commit, index}
                 <circle
@@ -82,5 +99,9 @@
     .scatterplot circle:hover {
         transform: scale(1.5);
         fill-opacity: 1;
+    }
+    .axis-title {
+        font-size: 14px;
+        fill: #4f46e5; /* Tailwind's indigo-600 */
     }
 </style>
