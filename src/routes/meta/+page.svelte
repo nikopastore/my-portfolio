@@ -94,7 +94,7 @@
             height={400} 
             innerRadius={0} 
             outerRadius={150} 
-            selectedLabel={null} 
+            on:sliceClick="{handleSliceClick}"
         />
     </section>
 
@@ -106,9 +106,14 @@
             height={400} 
             innerRadius={0} 
             outerRadius={150} 
-            selectedLabel={null} 
+            on:sliceClick="{handleSliceClick}"
         />
     </section>
+
+    <div id="selected-info" class="text-center mt-8">
+        <h3 class="text-xl font-semibold mb-2">Selected Information</h3>
+        <p>{selectedLabel ? `Selected Year/Language: ${selectedLabel}` : 'No selection made.'}</p>
+    </div>
 </section>
 
 <style>
@@ -121,5 +126,9 @@
     }
     section {
         text-align: center;
+    }
+    #selected-info p {
+        color: #d61b91; /* Miami Vice Pink */
+        font-weight: bold;
     }
 </style>
