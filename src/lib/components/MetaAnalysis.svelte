@@ -4,9 +4,6 @@
     import PieChart from './PieChart.svelte'; // Ensure correct path
 
     let data = [];
-    let commits = [];
-    let projectsByYear = [];
-
     let width = 1000;
     let height = 600;
     let margin = { top: 10, right: 10, bottom: 50, left: 70 }; // Adjusted for axis titles
@@ -20,43 +17,38 @@
     usableArea.height = usableArea.bottom - usableArea.top;
 
     let xScale, yScale;
-    let xAxis, yAxis;
+    let xAxisGroup, yAxisGroup;
 
     onMount(async () => {
         try {
             data = await d3.csv('/loc.csv', (row) => ({
                 ...row,
-                line: Number(row.line),
-                depth: Number(row.depth),
-                length: Number(row.length),
-                date: new Date(row.date + 'T00:00' + row.timezone),
                 datetime: new Date(row.datetime),
-                language: row.language || 'Unknown',
-                year: Number(row.year),
-                author: row.author || 'Unknown',
             }));
 
-            // Create X scale (date scale)
+            // Create scales
             xScale = d3.scaleTime()
                 .domain(d3.extent(data, d => d.datetime))
                 .range([usableArea.left, usableArea.right])
                 .nice();
 
-            // Create Y scale (hour of the day)
             yScale = d3.scaleLinear()
                 .domain([0, 24])
                 .range([usableArea.bottom, usableArea.top])
                 .nice();
 
-            // Render X and Y axes
-            xAxis = d3.axisBottom(xScale)
-                .ticks(d3.timeDay.every(1)) // Adjust ticks as needed
-                .tickFormat(d3.timeFormat('%b %d')); // Format dates (e.g., "Mar 10")
+            // Create axes
+            const xAxis = d3.axisBottom(xScale)
+                .ticks(d3.timeDay.every(1))
+                .tickFormat(d3.timeFormat('%b %d'));
 
-            yAxis = d3.axisLeft(yScale)
-                .ticks(12) // Adjust number of ticks as needed
-                .tickFormat(d => `${String(d).padStart(2, '0')}:00`); // Format time (e.g., "08:00")
+            const yAxis = d3.axisLeft(yScale)
+                .ticks(12)
+                .tickFormat(d => `${String(d).padStart(2, '0')}:00`);
 
+            // Render axes using d3.select()
+            d3.select(xAxisGroup).call(xAxis);
+            d3.select(yAxisGroup).call(yAxis);
         } catch (error) {
             console.error('Error loading or processing loc.csv:', error);
         }
@@ -71,14 +63,14 @@
         <g
             class="x-axis"
             transform={`translate(0, ${usableArea.bottom})`}
-            bind:this={xAxis}
+            bind:this={xAxisGroup}
         />
 
         <!-- Y Axis -->
         <g
             class="y-axis"
             transform={`translate(${usableArea.left}, 0)`}
-            bind:this={yAxis}
+            bind:this={yAxisGroup}
         />
 
         <!-- X Axis Title -->
@@ -103,7 +95,7 @@
         </text>
 
         <g class="dots">
-            {#each data as commit, index}
+            {#each data as commit}
                 <circle
                     cx={xScale(commit.datetime)}
                     cy={yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60)}
