@@ -37,10 +37,10 @@
                 .range([usableArea.bottom, usableArea.top])
                 .nice();
 
-            // Create X-axis with adjusted ticks and format
+            // Create X-axis to show only two ticks per year
             const xAxis = d3.axisBottom(xScale)
-                .ticks(d3.timeWeek.every(1)) // Adjust tick frequency
-                .tickFormat(d3.timeFormat('%b %d, %Y')); // Change format to include month, day, and year
+                .ticks(d3.timeYear.every(0.5)) // Display two ticks per year
+                .tickFormat(d3.timeFormat('%b %Y')); // Format to show month and year
 
             const yAxis = d3.axisLeft(yScale)
                 .ticks(12)
