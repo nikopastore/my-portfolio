@@ -13,7 +13,6 @@
   const dispatch = createEventDispatcher();
 
   let svgElement;
-  let legendElement;
   let tooltip;
 
   // Miami Vice Pink color code
@@ -66,20 +65,16 @@
 
     // Add Pie Slices
     arcs.append('path')
-      .attr('fill', d => {
-        if (d.data.label === selectedLabel) {
-          return miamiVicePink; // Highlight color for selected slice
-        }
-        return color(d.data.label);
-      })
+      .attr('fill', d => d.data.label === selectedLabel ? miamiVicePink : color(d.data.label))
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
       .attr('tabindex', '0') // Make focusable for accessibility
+      .each(function(d) { this._current = d; }) // Store the initial angles
       .on('mouseover', (event, d) => {
         tooltip.style('display', 'block')
           .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
         
-        // Dim other slices
+        // Dim other slices except the one being hovered over
         arcs.selectAll('path')
           .transition()
           .duration(200)
@@ -90,10 +85,10 @@
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 25) + 'px');
       })
-      .on('mouseout', (event, d) => {
+      .on('mouseout', () => {
         tooltip.style('display', 'none');
 
-        // Restore slice opacity
+        // Restore slice opacity to normal
         arcs.selectAll('path')
           .transition()
           .duration(200)
@@ -101,12 +96,12 @@
       })
       .on('click', (event, d) => {
         console.log('Slice clicked:', d.data.label);
-        dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+        selectedLabel = selectedLabel === d.data.label ? null : d.data.label; // Toggle selection
 
-        // Update selected label
-        selectedLabel = d.data.label;
+        // Emit 'sliceClick' event with the selected label
+        dispatch('sliceClick', selectedLabel);
 
-        // Update slice colors
+        // Update slice colors to reflect selection
         arcs.selectAll('path')
           .transition()
           .duration(300)
@@ -115,20 +110,12 @@
       .transition()
       .duration(1000)
       .attrTween('d', function(d) {
-        const interpolate = d3.interpolate(this._current || { startAngle: 0, endAngle: 0 }, d);
+        const interpolate = d3.interpolate(this._current, d);
         this._current = interpolate(1);
         return function(t) {
           return arc(interpolate(t));
         };
       });
-
-    // Add labels to each slice if needed
-    arcs.append('text')
-      .attr('transform', d => `translate(${arc.centroid(d)})`)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
-      .attr('fill', '#fff')
-      .text(d => ''); // Removed text from inside the pie slices
   });
 
   onDestroy(() => {
@@ -140,7 +127,7 @@
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
   <title id="pieChartTitle">Pie Chart</title>
-  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
+  <desc id="pieChartDesc">Distribution of Projects by Year</desc>
 </svg>
 
 <style>
