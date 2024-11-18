@@ -6,14 +6,18 @@
   export let data = []; // Array of objects with 'label' and 'value'
   export let width = 300;
   export let height = 300;
-  export let innerRadius = 0; // Set to 0 for filled center (pie chart)
+  export let innerRadius = 0; // Filled in the center
   export let outerRadius = Math.min(width, height) / 2;
   export let selectedLabel = null; // Selected slice label
 
   const dispatch = createEventDispatcher();
 
   let svgElement;
+  let legendElement;
   let tooltip;
+
+  // Miami Vice Pink color code
+  const miamiVicePink = '#ff6ec7';
 
   onMount(() => {
     if (data.length === 0) {
@@ -60,52 +64,71 @@
       .append('g')
       .attr('class', 'arc');
 
-    // Draw Pie Slices
+    // Add Pie Slices
     arcs.append('path')
       .attr('fill', d => {
         if (d.data.label === selectedLabel) {
-          return '#ff85b3'; // Miami Vice pink color for selected wedge
+          return miamiVicePink; // Highlight color for selected slice
         }
         return color(d.data.label);
       })
-      .attr('d', arc)
+      .attr('stroke', 'white')
+      .style('stroke-width', '2px')
+      .attr('tabindex', '0') // Make focusable for accessibility
       .on('mouseover', (event, d) => {
-        // Highlight hovered wedge and dim others
-        arcs.selectAll('path')
-          .transition().duration(300)
-          .style('opacity', dd => (dd === d ? 1 : 0.3));
-
         tooltip.style('display', 'block')
           .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+        
+        // Dim other slices
+        arcs.selectAll('path')
+          .transition()
+          .duration(200)
+          .style('opacity', path => path.data.label === d.data.label ? 1 : 0.5);
       })
       .on('mousemove', (event) => {
         tooltip
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 25) + 'px');
       })
-      .on('mouseout', () => {
-        // Reset opacity of all wedges
-        arcs.selectAll('path')
-          .transition().duration(300)
-          .style('opacity', 1);
-
+      .on('mouseout', (event, d) => {
         tooltip.style('display', 'none');
+
+        // Restore slice opacity
+        arcs.selectAll('path')
+          .transition()
+          .duration(200)
+          .style('opacity', 1);
       })
       .on('click', (event, d) => {
+        console.log('Slice clicked:', d.data.label);
         dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+
+        // Update selected label
+        selectedLabel = d.data.label;
+
+        // Update slice colors
+        arcs.selectAll('path')
+          .transition()
+          .duration(300)
+          .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label));
+      })
+      .transition()
+      .duration(1000)
+      .attrTween('d', function(d) {
+        const interpolate = d3.interpolate(this._current || { startAngle: 0, endAngle: 0 }, d);
+        this._current = interpolate(1);
+        return function(t) {
+          return arc(interpolate(t));
+        };
       });
 
-    // Add transition for wedges on selection change
-    $: {
-      arcs.selectAll('path')
-        .transition().duration(300)
-        .attr('fill', d => {
-          if (d.data.label === selectedLabel) {
-            return '#ff85b3'; // Miami Vice pink color for selected wedge
-          }
-          return color(d.data.label);
-        });
-    }
+    // Add labels to each slice if needed
+    arcs.append('text')
+      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('fill', '#fff')
+      .text(d => ''); // Removed text from inside the pie slices
   });
 
   onDestroy(() => {
@@ -117,7 +140,7 @@
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
   <title id="pieChartTitle">Pie Chart</title>
-  <desc id="pieChartDesc">Distribution of Projects by Year</desc>
+  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
 </svg>
 
 <style>
@@ -126,7 +149,11 @@
     height: auto;
   }
 
-  .arc path {
+  .arc text {
+    pointer-events: none;
+  }
+
+  path {
     transition: 300ms;
     outline: none;
   }
@@ -140,7 +167,7 @@
     opacity: 1;
   }
 
-  /* Accessibility focus styles */
+  /* Optional: Focus Styles for Accessibility */
   .arc path:focus {
     outline: none;
     stroke: #000;
