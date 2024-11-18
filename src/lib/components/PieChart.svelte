@@ -117,7 +117,7 @@
             arcs.selectAll('path')
               .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label))
               .style('stroke-width', '2px')
-              .attr('stroke', 'white'); // Remove box border around selected wedge
+              .attr('stroke', 'none'); // Remove box border around selected wedge
           })
           .on('focus', (event, d) => {
             // Optional: Add focus styles
