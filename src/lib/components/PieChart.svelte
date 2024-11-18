@@ -70,10 +70,10 @@
       .style('stroke-width', '2px')
       .attr('tabindex', '0') // Make focusable for accessibility
       .each(function(d) { this._current = d; }) // Store the initial angles
-      .on('mouseover', (event, d) => {
+      .on('mouseover', function (event, d) {
         tooltip.style('display', 'block')
           .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
-        
+
         // Dim other slices except the one being hovered over
         arcs.selectAll('path')
           .transition()
@@ -85,7 +85,7 @@
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 25) + 'px');
       })
-      .on('mouseout', () => {
+      .on('mouseout', function () {
         tooltip.style('display', 'none');
 
         // Restore slice opacity to normal
@@ -94,7 +94,7 @@
           .duration(200)
           .style('opacity', 1);
       })
-      .on('click', (event, d) => {
+      .on('click', function (event, d) {
         // Set selectedLabel to the clicked wedge's label or deselect if clicked again
         selectedLabel = selectedLabel === d.data.label ? null : d.data.label;
 
@@ -103,10 +103,11 @@
 
         // Update slice colors to reflect selection
         arcs.selectAll('path')
-          .transition()
-          .duration(300)
           .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label))
           .attr('stroke-width', path => path.data.label === selectedLabel ? '3px' : '2px'); // Thicker stroke for selected wedge
+
+        // Ensure no outline box appears
+        d3.select(this).style('outline', 'none');
       })
       .transition()
       .duration(1000)
