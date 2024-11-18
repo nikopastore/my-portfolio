@@ -7,7 +7,8 @@
     let data = [];
     let commits = [];
     let projectsByYear = [];
-    let colors = d3.schemeCategory10; // D3 color scheme for pie chart segments
+    let colors = d3.schemeCategory10; // D3 color scheme for consistent coloring
+    let languageColorMap = new Map(); // Map to store consistent language colors
 
     // Statistics
     let totalLinesOfCode = 0;
@@ -47,17 +48,27 @@
                 file: row.file || 'Unnamed'
             }));
 
-            // Calculate statistics
+            // Assign consistent colors to each language
+            const uniqueLanguages = new Set(data.map(d => d.language));
+            Array.from(uniqueLanguages).forEach((language, index) => {
+                languageColorMap.set(language, colors[index % colors.length]);
+            });
+
+            // Calculate statistics and assign colors to each commit based on the language
             totalLinesOfCode = data.length;
             commits = d3.groups(data, d => d.commit)
-                .map(([commit, lines]) => ({
-                    id: commit,
-                    url: 'https://github.com/username/repo/commit/' + commit,
-                    author: lines[0].author,
-                    datetime: lines[0].datetime,
-                    totalLines: lines.length,
-                    lines
-                }));
+                .map(([commit, lines]) => {
+                    let color = languageColorMap.get(lines[0].language) || '#cccccc';
+                    return {
+                        id: commit,
+                        url: 'https://github.com/username/repo/commit/' + commit,
+                        author: lines[0].author,
+                        datetime: lines[0].datetime,
+                        totalLines: lines.length,
+                        color,
+                        lines
+                    };
+                });
             totalCommits = commits.length;
             numberOfFiles = new Set(data.map(d => d.file)).size;
             maxDepth = d3.max(data, d => d.depth);
@@ -139,10 +150,11 @@
             d => d.language
         );
 
-        // Convert to array for display
+        // Convert to array for display, including color mapping
         languageBreakdownArray = Array.from(languageBreakdown).map(([language, count]) => ({
             label: language,
-            value: count
+            value: count,
+            color: languageColorMap.get(language) || '#cccccc' // Default color if not found
         }));
     }
 
@@ -217,7 +229,9 @@
                         cx={xScale(commit.datetime)}
                         cy={yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60)}
                         r={rScale(commit.totalLines)}
-                        fill={selectedCommits.includes(commit) ? 'orange' : 'steelblue'}
+                        fill={selectedCommits.includes(commit) ? commit.color : 'steelblue'}
+                        stroke={selectedCommits.includes(commit) ? 'black' : 'none'}
+                        stroke-width={selectedCommits.includes(commit) ? 1 : 0}
                         on:mouseenter={(event) => showTooltip(event, commit)}
                         on:mouseleave={hideTooltip}
                     />
@@ -291,10 +305,7 @@
         fill-opacity: 0.3;
         stroke: #666;
     }
-    .language-breakdown-list {
-        max-width: 600px;
-        margin: 0 auto;
-        list-style: none;
-        padding: 0;
+    .scatterplot circle {
+        transition: 0.2s;
     }
 </style>
