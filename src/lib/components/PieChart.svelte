@@ -116,7 +116,7 @@
             selectedLabel = d.data.label; // Update selected label
             arcs.selectAll('path')
               .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label))
-              .style('stroke', 'white') // Ensure no box border appears
+              .style('stroke', 'none') // Remove box border around selected wedge
               .style('stroke-width', '2px');
           })
           .on('focus', (event, d) => {
@@ -129,18 +129,20 @@
 
     // Create Legend
     const legend = d3.select(legendElement)
-      .attr('transform', `translate(0, ${height + 20})`)
       .attr('class', 'legend-container')
       .style('display', 'flex')
       .style('flex-wrap', 'wrap')
-      .style('justify-content', 'center');
+      .style('justify-content', 'center')
+      .style('margin-top', '20px');
 
     const legendItem = legend.selectAll('.legend-item')
       .data(pie(data))
       .enter()
       .append('g')
       .attr('class', 'legend-item')
-      .attr('transform', (d, i) => `translate(${i * 100}, 0)`);
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('margin-right', '20px');
 
     legendItem.append('rect')
       .attr('width', 18)
@@ -166,7 +168,7 @@
   <title id="pieChartTitle">Pie Chart</title>
   <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
 </svg>
-<svg bind:this={legendElement} class="w-full h-auto mt-4" aria-labelledby="legendTitle legendDesc"></svg>
+<div bind:this={legendElement} class="w-full h-auto mt-4"></div>
 
 <style>
   svg {
