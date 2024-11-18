@@ -1,22 +1,20 @@
-<!-- src/lib/components/PieChart.svelte -->
+<!-- src/lib/PieChart.svelte -->
 <script>
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import * as d3 from 'd3';
 
   export let data = []; // Array of objects with 'label' and 'value'
-  export let width = 300;
-  export let height = 300;
-  export let innerRadius = 0; // Filled in the center
+  export let width = 400;
+  export let height = 400;
+  export let innerRadius = 0; // >0 for a donut chart
   export let outerRadius = Math.min(width, height) / 2;
   export let selectedLabel = null; // Selected slice label
 
   const dispatch = createEventDispatcher();
 
   let svgElement;
+  let legendElement;
   let tooltip;
-
-  // Miami Vice Pink color code
-  const miamiVicePink = '#ff6ec7';
 
   onMount(() => {
     if (data.length === 0) {
@@ -39,6 +37,7 @@
 
     // Clear existing content
     d3.select(svgElement).selectAll('*').remove();
+    d3.select(legendElement).selectAll('*').remove();
 
     // Create SVG for Pie Chart
     const svg = d3.select(svgElement)
@@ -63,52 +62,23 @@
       .append('g')
       .attr('class', 'arc');
 
-    // Add Pie Slices
+    // Animate Pie Slices
     arcs.append('path')
-      .attr('fill', d => d.data.label === selectedLabel ? miamiVicePink : color(d.data.label))
+      .attr('fill', d => {
+        if (d.data.label === selectedLabel) {
+          return '#d61b91'; // Miami Vice Pink for selected slice
+        }
+        return color(d.data.label);
+      })
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
       .attr('tabindex', '0') // Make focusable for accessibility
-      .each(function(d) { this._current = d; }) // Store the initial angles
-      .on('mouseover', function (event, d) {
-        tooltip.style('display', 'block')
-          .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
-
-        // Dim other slices except the one being hovered over
-        arcs.selectAll('path')
-          .transition()
-          .duration(200)
-          .style('opacity', path => path.data.label === d.data.label ? 1 : 0.5);
+      .on('keydown', (event, d) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          dispatch('sliceClick', d.data.label);
+        }
       })
-      .on('mousemove', (event) => {
-        tooltip
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top', (event.pageY - 25) + 'px');
-      })
-      .on('mouseout', function () {
-        tooltip.style('display', 'none');
-
-        // Restore slice opacity to normal
-        arcs.selectAll('path')
-          .transition()
-          .duration(200)
-          .style('opacity', 1);
-      })
-      .on('click', function (event, d) {
-        // Set selectedLabel to the clicked wedge's label or deselect if clicked again
-        selectedLabel = selectedLabel === d.data.label ? null : d.data.label;
-
-        // Emit 'sliceClick' event with the selected label
-        dispatch('sliceClick', selectedLabel);
-
-        // Update slice colors to reflect selection
-        arcs.selectAll('path')
-          .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label))
-          .attr('stroke-width', path => path.data.label === selectedLabel ? '3px' : '2px'); // Thicker stroke for selected wedge
-
-        // Ensure no outline box appears
-        d3.select(this).style('outline', 'none');
-      })
+      .each(function(d) { this._current = { startAngle: 0, endAngle: 0 }; }) // Initial state for animation
       .transition()
       .duration(1000)
       .attrTween('d', function(d) {
@@ -117,7 +87,71 @@
         return function(t) {
           return arc(interpolate(t));
         };
+      })
+      .on('end', function(d) {
+        d3.select(this)
+          .on('mouseover', (event, d) => {
+            tooltip.style('display', 'block')
+              .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
+
+            // Dim other wedges on hover
+            arcs.selectAll('path')
+              .filter(e => e !== d)
+              .style('opacity', 0.3);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', (event.pageX + 10) + 'px')
+              .style('top', (event.pageY - 25) + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('display', 'none');
+
+            // Reset opacity of all wedges
+            arcs.selectAll('path')
+              .style('opacity', 1);
+          })
+          .on('click', (event, d) => {
+            dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
+          })
+          .on('focus', (event, d) => {
+            // Optional: Add focus styles
+          })
+          .on('blur', () => {
+            // Optional: Remove focus styles
+          });
       });
+
+    // Add labels
+    arcs.append('text')
+      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('fill', '#fff')
+      .text(d => d.data.label);
+
+    // Create Legend
+    const legend = d3.select(legendElement)
+      .attr('transform', `translate(10, 10)`);
+
+    const legendItem = legend.selectAll('.legend-item')
+      .data(color.domain())
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (d, i) => `translate(0, ${i * 20})`);
+
+    legendItem.append('rect')
+      .attr('width', 18)
+      .attr('height', 18)
+      .attr('fill', color)
+      .attr('stroke', 'white')
+      .attr('stroke-width', '1px');
+
+    legendItem.append('text')
+      .attr('x', 24)
+      .attr('y', 14)
+      .text(d => d);
   });
 
   onDestroy(() => {
@@ -129,8 +163,9 @@
 
 <svg bind:this={svgElement} class="w-full h-auto" aria-labelledby="pieChartTitle pieChartDesc" role="img">
   <title id="pieChartTitle">Pie Chart</title>
-  <desc id="pieChartDesc">Distribution of Projects by Year</desc>
+  <desc id="pieChartDesc">Distribution of Projects by Year or Language</desc>
 </svg>
+<svg bind:this={legendElement} class="w-full h-auto" aria-labelledby="legendTitle legendDesc"></svg>
 
 <style>
   svg {
@@ -142,9 +177,9 @@
     pointer-events: none;
   }
 
-  path {
-    transition: fill 300ms, opacity 300ms, stroke-width 300ms;
-    outline: none;
+  .legend-item rect {
+    stroke: #fff;
+    stroke-width: 1px;
   }
 
   .tooltip {
@@ -156,10 +191,12 @@
     opacity: 1;
   }
 
-  /* Optional: Focus Styles for Accessibility */
-  .arc path:focus {
+  path {
+    transition: 300ms;
     outline: none;
-    stroke: #000;
-    stroke-width: 3px;
+  }
+
+  .arc path:hover {
+    cursor: pointer;
   }
 </style>
