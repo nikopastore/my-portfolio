@@ -122,7 +122,7 @@
   });
 
   // Redraw the chart reactively whenever selectedLabel changes
-  $: if (selectedLabel !== null) {
+  $: if (selectedLabel !== null || selectedLabel === null) {
     renderPieChart();
   }
 
