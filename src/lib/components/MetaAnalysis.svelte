@@ -22,10 +22,14 @@
     let height = 600;
     let margin = { top: 10, right: 10, bottom: 50, left: 70 };
     let xScale, yScale, rScale;
-    let xAxisGroup, yAxisGroup, yAxisGridlines;
+    let xAxisGroup, yAxisGroup, yAxisGridlines, brushArea;
     let tooltipVisible = false;
     let tooltipContent = {};
     let tooltipStyle = { top: '0px', left: '0px' };
+    let selectedCommits = [];
+    let selectedLines = [];
+    let languageBreakdown = new Map();
+    let languageBreakdownArray = [];
 
     onMount(async () => {
         try {
@@ -85,22 +89,62 @@
             // Scale for circle sizes based on total lines edited
             rScale = d3.scaleSqrt()
                 .domain([1, d3.max(commits, d => d.totalLines)])
-                .range([2, 15]); // Adjust as needed for visual balance
+                .range([2, 15]);
 
             // Add Y-axis gridlines
             d3.select(yAxisGridlines)
                 .call(d3.axisLeft(yScale).tickSize(-width + margin.left + margin.right).tickFormat(''))
                 .selectAll('line')
-                .attr('stroke', '#ddd') // Light color for gridlines
+                .attr('stroke', '#ddd')
                 .attr('stroke-opacity', 0.7);
 
             // Create and render axes for the scatterplot
             d3.select(xAxisGroup).call(d3.axisBottom(xScale).ticks(d3.timeYear.every(0.5)).tickFormat(d3.timeFormat('%b %Y')));
             d3.select(yAxisGroup).call(d3.axisLeft(yScale).ticks(12).tickFormat(d => `${String(d).padStart(2, '0')}:00`));
+
+            // Add brushing
+            d3.select(brushArea)
+                .call(
+                    d3.brush()
+                        .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
+                        .on('start brush end', brushed)
+                );
         } catch (error) {
             console.error('Error loading or processing loc.csv:', error);
         }
     });
+
+    function brushed({ selection }) {
+        if (!selection) {
+            selectedCommits = [];
+            selectedLines = [];
+            languageBreakdown = new Map();
+            languageBreakdownArray = [];
+            return;
+        }
+
+        const [[x0, y0], [x1, y1]] = selection;
+        selectedCommits = commits.filter(commit => {
+            const cx = xScale(commit.datetime);
+            const cy = yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60);
+            return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
+        });
+
+        selectedLines = selectedCommits.flatMap(commit => commit.lines);
+
+        // Calculate the language breakdown
+        languageBreakdown = d3.rollup(
+            selectedLines,
+            v => v.length,
+            d => d.language
+        );
+
+        // Convert to array for display
+        languageBreakdownArray = Array.from(languageBreakdown).map(([language, count]) => ({
+            label: language,
+            value: count
+        }));
+    }
 
     function showTooltip(event, commit) {
         tooltipContent = {
@@ -121,7 +165,6 @@
     }
 </script>
 
-<!-- Unified meta analysis section -->
 <section class="meta-analysis-wrapper container mx-auto px-4 py-8 rounded-lg shadow-md bg-gray-900 dark:bg-gray-800">
     <h2 class="text-3xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Meta Analysis</h2>
 
@@ -160,12 +203,12 @@
         <h2 class="text-2xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Commits by Time of Day</h2>
 
         <svg viewBox={`0 0 ${width} ${height}`} class="scatterplot">
-            <!-- Render Y-axis gridlines -->
             <g class="gridlines" transform={`translate(${margin.left}, 0)`} bind:this={yAxisGridlines} />
-
-            <!-- Render axes -->
             <g class="x-axis" transform={`translate(0, ${height - margin.bottom})`} bind:this={xAxisGroup} />
             <g class="y-axis" transform={`translate(${margin.left}, 0)`} bind:this={yAxisGroup} />
+
+            <!-- Brushing area -->
+            <g bind:this={brushArea} class="brush-area"></g>
 
             <!-- Scatterplot Circles -->
             <g class="dots">
@@ -174,7 +217,7 @@
                         cx={xScale(commit.datetime)}
                         cy={yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60)}
                         r={rScale(commit.totalLines)}
-                        fill="steelblue"
+                        fill={selectedCommits.includes(commit) ? 'orange' : 'steelblue'}
                         on:mouseenter={(event) => showTooltip(event, commit)}
                         on:mouseleave={hideTooltip}
                     />
@@ -182,7 +225,6 @@
             </g>
         </svg>
 
-        <!-- Tooltip -->
         {#if tooltipVisible}
             <div 
                 class="tooltip dark:bg-gray-700 dark:text-white bg-white text-gray-900"
@@ -195,6 +237,23 @@
             </div>
         {/if}
     </section>
+
+    {#if selectedLines.length > 0}
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Language Breakdown of Selected Commits</h2>
+            <PieChart 
+                data={languageBreakdownArray} 
+                width={400} 
+                height={400} 
+                innerRadius={0} 
+                outerRadius={150} 
+            />
+        </section>
+    {:else}
+        <p class="text-center text-lg text-gray-400 dark:text-gray-500">
+            No selected data to display language breakdown.
+        </p>
+    {/if}
 
     <!-- Pie Chart for Projects by Year with Legend -->
     <section class="flex justify-between items-start">
@@ -227,71 +286,15 @@
 </section>
 
 <style>
-    .meta-analysis-wrapper {
-        background-color: #1f2937; /* Tailwind's gray-900 */
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
+    .brush-area .selection {
+        fill: #8884d8;
+        fill-opacity: 0.3;
+        stroke: #666;
     }
-    .meta-analysis-wrapper.dark {
-        background-color: #2d3748; /* Tailwind's gray-800 */
-    }
-    .gridlines line {
-        stroke-opacity: 0.2;
-        stroke: #ddd;
-    }
-    .stats {
-        display: flex;
-        gap: 2rem;
-    }
-    .stat-item dt {
-        font-size: 0.875rem; /* Tailwind's text-sm */
-        color: #a0aec0; /* Tailwind's gray-400 */
-    }
-    .stat-item dd {
-        font-size: 1.5rem; /* Tailwind's text-2xl */
-        color: #e2e8f0; /* Tailwind's gray-100 */
-        font-weight: bold;
-    }
-    .stat-item dd.dark\:text-white {
-        color: #FFFFFF; /* White font for dark mode */
-    }
-    .scatterplot {
-        overflow: visible;
-    }
-    .scatterplot circle {
-        transition: 0.2s;
-        fill-opacity: 0.7;
-        transform-origin: center;
-        transform-box: fill-box;
-    }
-    .scatterplot circle:hover {
-        transform: scale(1.5);
-        fill-opacity: 1;
-    }
-    .tooltip {
-        position: fixed;
-        background: #2d3748; /* Tailwind's gray-800 */
-        border: 1px solid #4a5568; /* Tailwind's gray-600 */
-        padding: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        font-size: 12px;
-        pointer-events: none;
-    }
-    .tooltip.dark\:bg-gray-700 {
-        background-color: #2d3748; /* Tailwind's gray-800 */
-    }
-    .tooltip.dark\:text-white {
-        color: #FFFFFF; /* White text for dark mode */
-    }
-    .legend-list {
+    .language-breakdown-list {
+        max-width: 600px;
+        margin: 0 auto;
         list-style: none;
         padding: 0;
-    }
-    .legend-color-box {
-        width: 16px;
-        height: 16px;
-        display: inline-block;
     }
 </style>
