@@ -9,14 +9,12 @@
     let projectsByYear = [];
 
     // Additional Statistics
-    let averageLinesPerCommit = 0;
-    let mostActiveAuthor = 'N/A';
     let totalLinesOfCode = 0;
-    let numberOfFiles = 0;
     let totalCommits = 0;
-
-    // Derived data for display
-    let authorCommitCounts = {};
+    let numberOfFiles = 0;
+    let maxDepth = 0;
+    let longestLine = 0;
+    let maxLines = 0;
 
     onMount(async () => {
         try {
@@ -41,28 +39,24 @@
             commits = d3.groups(data, d => d.commit);
             totalCommits = commits.length;
 
-            // Calculate average lines per commit
-            averageLinesPerCommit = totalLinesOfCode / totalCommits || 0;
-
             // Calculate number of files
             numberOfFiles = new Set(data.map(d => d.file)).size;
 
-            // Calculate most active author
-            authorCommitCounts = d3.rollups(
-                data,
-                v => v.length,
-                d => d.author
-            ).sort((a, b) => b[1] - a[1]);
+            // Calculate maximum depth
+            maxDepth = d3.max(data, d => d.depth);
 
-            mostActiveAuthor = authorCommitCounts.length > 0 ? authorCommitCounts[0][0] : 'N/A';
+            // Calculate longest line and max lines in a file
+            longestLine = d3.max(data, d => d.length);
+            maxLines = d3.max(d3.rollups(data, v => v.length, d => d.file), d => d[1]);
 
             // Log to confirm processing
             console.log('Summary Statistics:', {
                 totalLinesOfCode,
                 totalCommits,
-                averageLinesPerCommit,
                 numberOfFiles,
-                mostActiveAuthor
+                maxDepth,
+                longestLine,
+                maxLines
             });
 
             // Initialize projects by year for the pie chart
@@ -78,56 +72,55 @@
     });
 </script>
 
-<section class="meta-analysis container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">Meta-Analysis of Codebase</h1>
+<section class="summary-section container mx-auto px-4 py-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">Summary</h2>
 
     <!-- Summary Statistics -->
-    <dl class="stats grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
-        <div>
-            <dt>Total <abbr title="Lines of Code">LOC</abbr></dt>
-            <dd>{totalLinesOfCode}</dd>
+    <dl class="stats flex justify-between max-w-4xl mx-auto mb-12 text-center">
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">COMMITS</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{totalCommits}</dd>
         </div>
-        <div>
-            <dt>Total Commits</dt>
-            <dd>{totalCommits}</dd>
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">FILES</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{numberOfFiles}</dd>
         </div>
-        <div>
-            <dt>Average Lines per Commit</dt>
-            <dd>{averageLinesPerCommit.toFixed(2)}</dd>
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">TOTAL LOC</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{totalLinesOfCode}</dd>
         </div>
-        <div>
-            <dt>Most Active Author</dt>
-            <dd>{mostActiveAuthor}</dd>
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">MAX DEPTH</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{maxDepth}</dd>
         </div>
-        <div>
-            <dt>Number of Files</dt>
-            <dd>{numberOfFiles}</dd>
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">LONGEST LINE</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{longestLine}</dd>
+        </div>
+        <div class="stat-item">
+            <dt class="text-sm font-medium text-gray-500">MAX LINES</dt>
+            <dd class="text-2xl font-bold text-gray-900 dark:text-white">{maxLines}</dd>
         </div>
     </dl>
-
-    <!-- Pie Chart for Projects by Year -->
-    <section class="mb-16">
-        <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Projects Distribution by Year</h2>
-        {#if projectsByYear.length > 0}
-            <PieChart 
-                data={projectsByYear} 
-                width={400} 
-                height={400} 
-                innerRadius={0} 
-                outerRadius={150} 
-            />
-        {:else}
-            <p class="text-center text-gray-600 dark:text-gray-400">No project data available.</p>
-        {/if}
-    </section>
 </section>
 
+<!-- The rest of your page structure remains unchanged -->
+
 <style>
-    .stats dt {
-        font-weight: bold;
-        color: #4f46e5; /* Tailwind's indigo-600 */
+    .summary-section h2 {
+        margin-bottom: 1rem;
     }
-    .stats dd {
-        color: #6b7280;
+    .stats {
+        display: flex;
+        gap: 2rem;
+    }
+    .stat-item dt {
+        font-size: 0.875rem; /* Tailwind's text-sm */
+        color: #6b7280; /* Tailwind's gray-500 */
+    }
+    .stat-item dd {
+        font-size: 1.5rem; /* Tailwind's text-2xl */
+        color: #111827; /* Tailwind's gray-900 */
+        font-weight: bold;
     }
 </style>
