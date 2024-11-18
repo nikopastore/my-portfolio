@@ -116,8 +116,7 @@
             dispatch('sliceClick', d.data.label); // Emit 'sliceClick' event with the label
             arcs.selectAll('path')
               .attr('fill', e => e.data.label === selectedLabel ? '#d61b91' : color(e.data.label))
-              .style('stroke-width', '2px')
-              .attr('stroke', 'white'); // Remove box border around selected wedge
+              .style('stroke-width', '2px');
           })
           .on('focus', (event, d) => {
             // Optional: Add focus styles
