@@ -95,8 +95,8 @@
           .style('opacity', 1);
       })
       .on('click', (event, d) => {
-        console.log('Slice clicked:', d.data.label);
-        selectedLabel = selectedLabel === d.data.label ? null : d.data.label; // Toggle selection
+        // Set selectedLabel to the clicked wedge's label or deselect if clicked again
+        selectedLabel = selectedLabel === d.data.label ? null : d.data.label;
 
         // Emit 'sliceClick' event with the selected label
         dispatch('sliceClick', selectedLabel);
