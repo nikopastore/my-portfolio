@@ -15,14 +15,18 @@
   let svgElement;
   let tooltip;
 
-  // Miami Vice Pink color code
+  // Miami Vice Pink color code for selected wedge
   const miamiVicePink = '#ff6ec7';
 
-  onMount(() => {
+  // Function to render the pie chart
+  function renderPieChart() {
     if (data.length === 0) {
       console.warn('PieChart: No data provided');
       return;
     }
+
+    // Clear existing content
+    d3.select(svgElement).selectAll('*').remove();
 
     // Create Tooltip Element
     tooltip = d3.select('body')
@@ -36,9 +40,6 @@
       .style('border-radius', '4px')
       .style('font-size', '12px')
       .style('display', 'none');
-
-    // Clear existing content
-    d3.select(svgElement).selectAll('*').remove();
 
     // Create SVG for Pie Chart
     const svg = d3.select(svgElement)
@@ -69,7 +70,7 @@
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
       .attr('tabindex', '0') // Make focusable for accessibility
-      .each(function(d) { this._current = d; }) // Store the initial angles
+      .each(function (d) { this._current = d; }) // Store the initial angles
       .on('mouseover', function (event, d) {
         tooltip.style('display', 'block')
           .html(`<strong>${d.data.label}</strong>: ${d.data.value}`);
@@ -101,24 +102,29 @@
         // Emit 'sliceClick' event with the selected label
         dispatch('sliceClick', selectedLabel);
 
-        // Update slice colors to reflect selection
-        arcs.selectAll('path')
-          .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label))
-          .attr('stroke-width', path => path.data.label === selectedLabel ? '3px' : '2px'); // Thicker stroke for selected wedge
-
-        // Ensure no outline box appears
-        d3.select(this).style('outline', 'none');
+        // Re-render the chart to apply color change
+        renderPieChart();
       })
       .transition()
       .duration(1000)
-      .attrTween('d', function(d) {
+      .attrTween('d', function (d) {
         const interpolate = d3.interpolate(this._current, d);
         this._current = interpolate(1);
-        return function(t) {
+        return function (t) {
           return arc(interpolate(t));
         };
       });
+  }
+
+  // Render the chart on mount and whenever selectedLabel changes
+  onMount(() => {
+    renderPieChart();
   });
+
+  // Redraw the chart reactively whenever selectedLabel changes
+  $: if (selectedLabel !== null) {
+    renderPieChart();
+  }
 
   onDestroy(() => {
     if (tooltip) {
