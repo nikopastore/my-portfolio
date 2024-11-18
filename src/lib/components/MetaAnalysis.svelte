@@ -20,6 +20,7 @@
     usableArea.height = usableArea.bottom - usableArea.top;
 
     let xScale, yScale;
+    let xAxis, yAxis;
 
     onMount(async () => {
         try {
@@ -35,15 +36,27 @@
                 author: row.author || 'Unknown',
             }));
 
+            // Create X scale (date scale)
             xScale = d3.scaleTime()
                 .domain(d3.extent(data, d => d.datetime))
                 .range([usableArea.left, usableArea.right])
                 .nice();
 
+            // Create Y scale (hour of the day)
             yScale = d3.scaleLinear()
                 .domain([0, 24])
                 .range([usableArea.bottom, usableArea.top])
                 .nice();
+
+            // Render X and Y axes
+            xAxis = d3.axisBottom(xScale)
+                .ticks(d3.timeDay.every(1)) // Adjust ticks as needed
+                .tickFormat(d3.timeFormat('%b %d')); // Format dates (e.g., "Mar 10")
+
+            yAxis = d3.axisLeft(yScale)
+                .ticks(12) // Adjust number of ticks as needed
+                .tickFormat(d => `${String(d).padStart(2, '0')}:00`); // Format time (e.g., "08:00")
+
         } catch (error) {
             console.error('Error loading or processing loc.csv:', error);
         }
@@ -54,6 +67,20 @@
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Commits by Time of Day</h2>
 
     <svg viewBox={`0 0 ${width} ${height}`} class="scatterplot">
+        <!-- X Axis -->
+        <g
+            class="x-axis"
+            transform={`translate(0, ${usableArea.bottom})`}
+            bind:this={xAxis}
+        />
+
+        <!-- Y Axis -->
+        <g
+            class="y-axis"
+            transform={`translate(${usableArea.left}, 0)`}
+            bind:this={yAxis}
+        />
+
         <!-- X Axis Title -->
         <text
             x={width / 2}
