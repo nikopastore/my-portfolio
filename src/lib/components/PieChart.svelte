@@ -105,7 +105,8 @@
         arcs.selectAll('path')
           .transition()
           .duration(300)
-          .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label));
+          .attr('fill', path => path.data.label === selectedLabel ? miamiVicePink : color(path.data.label))
+          .attr('stroke-width', path => path.data.label === selectedLabel ? '3px' : '2px'); // Thicker stroke for selected wedge
       })
       .transition()
       .duration(1000)
