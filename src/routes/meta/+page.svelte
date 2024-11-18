@@ -8,6 +8,7 @@
     let commits = [];
     let projectsByYear = [];
     let languageBreakdown = [];
+    let totalProjects = 0;
     
     onMount(async () => {
       // Read the CSV file
@@ -26,7 +27,7 @@
           let { author, date, time, timezone, datetime } = first;
           let ret = {
             id: commit,
-            url: 'https://github.com/nikopastore/my-portfolio.git' + commit,
+            url: `https://github.com/nikopastore/my-portfolio/commit/${commit}`,
             author,
             date,
             time,
@@ -53,60 +54,76 @@
       }, {});
       projectsByYear = Object.values(yearData);
       
+      totalProjects = projectsByYear.reduce((acc, year) => acc + year.value, 0);
+      
       languageBreakdown = Array.from(d3.rollups(
         data,
         v => v.length,
         d => d.language
       )).map(([language, lines]) => ({ label: language, value: lines }));
     });
-  </script>
+</script>
+
+<section id="meta" class="mb-16">
+  <h1 class="text-4xl font-bold mb-4 text-center">Meta-Analysis of Codebase</h1>
+  <p class="text-lg text-center mb-8">
+    This page provides an in-depth analysis of the codebase, including lines of code, commit statistics, and language breakdown.
+  </p>
   
-  <section id="meta" class="mb-16">
-    <h1 class="text-4xl font-bold mb-4 text-center">Meta-Analysis of Codebase</h1>
-    <p class="text-lg text-center mb-8">
-      This page provides an in-depth analysis of the codebase, including lines of code, commit statistics, and language breakdown.
-    </p>
-    
-    <dl class="stats grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
-      <div>
-        <dt>Total <abbr title="Lines of Code">LOC</abbr></dt>
-        <dd>{data.length}</dd>
-      </div>
-      <div>
-        <dt>Total Commits</dt>
-        <dd>{commits.length}</dd>
-      </div>
-      <div>
-        <dt>Projects by Year</dt>
-        <dd>{projectsByYear.length}</dd>
-      </div>
-      <div>
-        <dt>Languages Used</dt>
-        <dd>{languageBreakdown.length}</dd>
-      </div>
-    </dl>
-    
-    <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h2>
-      <PieChart data={projectsByYear} width={300} height={300} innerRadius={50} outerRadius={100} />
-    </section>
-    
-    <section>
-      <h2 class="text-2xl font-semibold mb-4 text-center">Language Breakdown</h2>
-      <PieChart data={languageBreakdown} width={300} height={300} innerRadius={50} outerRadius={100} />
-    </section>
+  <dl class="stats grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
+    <div>
+      <dt>Total <abbr title="Lines of Code">LOC</abbr></dt>
+      <dd>{data.length}</dd>
+    </div>
+    <div>
+      <dt>Total Commits</dt>
+      <dd>{commits.length}</dd>
+    </div>
+    <div>
+      <dt>Total Projects</dt>
+      <dd>{totalProjects}</dd>
+    </div>
+    <div>
+      <dt>Languages Used</dt>
+      <dd>{languageBreakdown.length}</dd>
+    </div>
+  </dl>
+  
+  <!-- Projects Distribution by Year -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h2>
+    <PieChart data={projectsByYear} width={300} height={300} innerRadius={0} outerRadius={150} />
   </section>
   
-  <style>
-    .stats dt {
-      font-weight: bold;
-      color: #4f46e5;
-    }
-    .stats dd {
-      color: #6b7280;
-    }
-    section {
-      text-align: center;
-    }
-  </style>
-  
+  <!-- Language Breakdown -->
+  <section>
+    <h2 class="text-2xl font-semibold mb-4 text-center">Language Breakdown</h2>
+    <PieChart data={languageBreakdown} width={300} height={300} innerRadius={0} outerRadius={150} />
+  </section>
+</section>
+
+<style>
+  .stats dt {
+    font-weight: bold;
+    color: #4f46e5; /* Tailwind's indigo-600 */
+  }
+  .stats dd {
+    color: #6b7280; /* Tailwind's gray-500 */
+  }
+  section {
+    text-align: center;
+  }
+  /* Dark Mode Adjustments */
+  .dark .stats dt {
+    color: #a5b4fc; /* Tailwind's indigo-300 */
+  }
+  .dark .stats dd {
+    color: #d1d5db; /* Tailwind's gray-300 */
+  }
+  section h2 {
+    color: #374151; /* Tailwind's gray-700 */
+  }
+  .dark section h2 {
+    color: #e5e7eb; /* Tailwind's gray-200 */
+  }
+</style>
