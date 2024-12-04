@@ -4,7 +4,11 @@
 </script>
 
 <!-- Navigation Bar -->
-<Nav />
+<Nav links={[
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+]} />
 
 <!-- Main Content with Padding Below the Navigation -->
 <main class="w-full px-4 pt-24">
