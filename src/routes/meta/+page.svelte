@@ -40,13 +40,12 @@
     }
 
     onMount(async () => {
-        // Example CSV load, replace with actual logic
         data = await d3.csv('/loc.csv', (row) => ({
             ...row,
             datetime: new Date(row.datetime),
         }));
-        commits = data; // Replace with commit parsing
-        files = data; // Replace with file parsing
+        commits = data; // Replace with commit parsing logic
+        files = data; // Replace with file parsing logic
     });
 </script>
 

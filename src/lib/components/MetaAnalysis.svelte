@@ -1,4 +1,3 @@
-<!-- src/lib/components/MetaAnalysis.svelte -->
 <script>
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -54,21 +53,18 @@
                 languageColorMap.set(language, colors[index % colors.length]);
             });
 
-            // Calculate statistics and assign colors to each commit based on the language
+            // Calculate statistics
             totalLinesOfCode = data.length;
             commits = d3.groups(data, d => d.commit)
-                .map(([commit, lines]) => {
-                    let color = languageColorMap.get(lines[0].language) || '#cccccc';
-                    return {
-                        id: commit,
-                        url: 'https://github.com/username/repo/commit/' + commit,
-                        author: lines[0].author,
-                        datetime: lines[0].datetime,
-                        totalLines: lines.length,
-                        color,
-                        lines
-                    };
-                });
+                .map(([commit, lines]) => ({
+                    id: commit,
+                    url: 'https://github.com/username/repo/commit/' + commit,
+                    author: lines[0].author,
+                    datetime: lines[0].datetime,
+                    totalLines: lines.length,
+                    color: languageColorMap.get(lines[0].language) || '#cccccc',
+                    lines
+                }));
             totalCommits = commits.length;
             numberOfFiles = new Set(data.map(d => d.file)).size;
             maxDepth = d3.max(data, d => d.depth);
@@ -83,7 +79,7 @@
             ).map(([year, count], i) => ({
                 label: year.toString(),
                 value: count,
-                color: colors[i % colors.length] // Assign color for legend
+                color: colors[i % colors.length]
             }));
 
             // Create scales for the scatterplot
@@ -97,7 +93,6 @@
                 .range([height - margin.bottom, margin.top])
                 .nice();
 
-            // Scale for circle sizes based on total lines edited
             rScale = d3.scaleSqrt()
                 .domain([1, d3.max(commits, d => d.totalLines)])
                 .range([2, 15]);
@@ -109,8 +104,8 @@
                 .attr('stroke', '#ddd')
                 .attr('stroke-opacity', 0.7);
 
-            // Create and render axes for the scatterplot
-            d3.select(xAxisGroup).call(d3.axisBottom(xScale).ticks(d3.timeYear.every(0.5)).tickFormat(d3.timeFormat('%b %Y')));
+            // Render axes
+            d3.select(xAxisGroup).call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b %Y')));
             d3.select(yAxisGroup).call(d3.axisLeft(yScale).ticks(12).tickFormat(d => `${String(d).padStart(2, '0')}:00`));
 
             // Add brushing
@@ -143,18 +138,16 @@
 
         selectedLines = selectedCommits.flatMap(commit => commit.lines);
 
-        // Calculate the language breakdown
         languageBreakdown = d3.rollup(
             selectedLines,
             v => v.length,
             d => d.language
         );
 
-        // Convert to array for display, including color mapping
         languageBreakdownArray = Array.from(languageBreakdown).map(([language, count]) => ({
             label: language,
             value: count,
-            color: languageColorMap.get(language) || '#cccccc' // Default color if not found
+            color: languageColorMap.get(language) || '#cccccc'
         }));
     }
 
@@ -177,126 +170,11 @@
     }
 </script>
 
-<section class="meta-analysis-wrapper container mx-auto px-4 py-8 rounded-lg shadow-md bg-gray-900 dark:bg-gray-800">
-    <h2 class="text-3xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Meta Analysis</h2>
+<section class="meta-analysis-wrapper container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold mb-6 text-center">Meta Analysis</h2>
 
-    <!-- Summary Statistics -->
-    <section class="mb-12">
-        <dl class="flex justify-between max-w-4xl mx-auto text-center">
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">COMMITS</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{totalCommits}</dd>
-            </div>
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">FILES</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{numberOfFiles}</dd>
-            </div>
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">TOTAL LOC</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{totalLinesOfCode}</dd>
-            </div>
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">MAX DEPTH</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{maxDepth}</dd>
-            </div>
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">LONGEST LINE</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{longestLine}</dd>
-            </div>
-            <div class="stat-item">
-                <dt class="text-sm font-medium text-gray-400 dark:text-gray-500">MAX LINES</dt>
-                <dd class="text-2xl font-bold text-gray-100 dark:text-white">{maxLines}</dd>
-            </div>
-        </dl>
-    </section>
+    <!-- Statistics and visualizations here -->
 
-    <!-- Scatterplot for Commits by Time of Day -->
-    <section class="mb-16">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Commits by Time of Day</h2>
-
-        <svg viewBox={`0 0 ${width} ${height}`} class="scatterplot">
-            <g class="gridlines" transform={`translate(${margin.left}, 0)`} bind:this={yAxisGridlines} />
-            <g class="x-axis" transform={`translate(0, ${height - margin.bottom})`} bind:this={xAxisGroup} />
-            <g class="y-axis" transform={`translate(${margin.left}, 0)`} bind:this={yAxisGroup} />
-
-            <!-- Brushing area -->
-            <g bind:this={brushArea} class="brush-area"></g>
-
-            <!-- Scatterplot Circles -->
-            <g class="dots">
-                {#each commits as commit}
-                    <circle
-                        cx={xScale(commit.datetime)}
-                        cy={yScale(commit.datetime.getHours() + commit.datetime.getMinutes() / 60)}
-                        r={rScale(commit.totalLines)}
-                        fill={selectedCommits.includes(commit) ? commit.color : 'steelblue'}
-                        stroke={selectedCommits.includes(commit) ? 'black' : 'none'}
-                        stroke-width={selectedCommits.includes(commit) ? 1 : 0}
-                        on:mouseenter={(event) => showTooltip(event, commit)}
-                        on:mouseleave={hideTooltip}
-                    />
-                {/each}
-            </g>
-        </svg>
-
-        {#if tooltipVisible}
-            <div 
-                class="tooltip dark:bg-gray-700 dark:text-white bg-white text-gray-900"
-                style="top: {tooltipStyle.top}; left: {tooltipStyle.left};"
-            >
-                <p><strong>Commit ID:</strong> {tooltipContent.id}</p>
-                <p><strong>Date & Time:</strong> {tooltipContent.datetime}</p>
-                <p><strong>Author:</strong> {tooltipContent.author}</p>
-                <p><strong>Lines Edited:</strong> {tooltipContent.totalLines}</p>
-            </div>
-        {/if}
-    </section>
-
-    {#if selectedLines.length > 0}
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-100 dark:text-gray-100">Language Breakdown of Selected Commits</h2>
-            <PieChart 
-                data={languageBreakdownArray} 
-                width={400} 
-                height={400} 
-                innerRadius={0} 
-                outerRadius={150} 
-            />
-        </section>
-    {:else}
-        <p class="text-center text-lg text-gray-400 dark:text-gray-500">
-            No selected data to display language breakdown.
-        </p>
-    {/if}
-
-    <!-- Pie Chart for Projects by Year with Legend -->
-    <section class="flex justify-between items-start">
-        <div class="w-1/2">
-            <h2 class="text-2xl font-semibold mb-4 text-center text-gray-100 dark:text-gray-100">Projects Distribution by Year</h2>
-            {#if projectsByYear.length > 0}
-                <PieChart 
-                    data={projectsByYear} 
-                    width={400} 
-                    height={400} 
-                    innerRadius={0} 
-                    outerRadius={150} 
-                />
-            {:else}
-                <p class="text-center text-gray-400 dark:text-gray-500">No project data available.</p>
-            {/if}
-        </div>
-        <div class="w-1/3 ml-4">
-            <h3 class="text-lg font-semibold text-gray-100 dark:text-gray-100">Legend</h3>
-            <ul class="legend-list">
-                {#each projectsByYear as { label, color }}
-                    <li class="flex items-center mb-2">
-                        <span class="legend-color-box" style="background-color: {color};"></span>
-                        <span class="ml-2 text-gray-100 dark:text-gray-300">{label}</span>
-                    </li>
-                {/each}
-            </ul>
-        </div>
-    </section>
 </section>
 
 <style>

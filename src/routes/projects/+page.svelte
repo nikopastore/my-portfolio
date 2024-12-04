@@ -1,4 +1,3 @@
-<!-- src/routes/projects/+page.svelte -->
 <script>
   import { onMount } from 'svelte';
   import PieChart from '$lib/PieChart.svelte';
@@ -15,7 +14,6 @@
       return acc;
     }, {});
     projectsByYear = Object.values(yearData);
-    console.log('Projects By Year:', projectsByYear); // Debugging
 
     // Aggregate projects by technology
     const techCounts = projects.reduce((acc, project) => {
@@ -25,27 +23,29 @@
       return acc;
     }, {});
     projectsByTechnology = Object.entries(techCounts).map(([label, value]) => ({ label, value }));
-    console.log('Projects By Technology:', projectsByTechnology); // Debugging
   });
 </script>
 
 <!-- Projects Section -->
 <section id="projects" class="mb-16">
-  <h2 class="text-3xl font-semibold mb-6 text-center">Projects</h2>
+  <h2 class="text-3xl font-semibold mb-6 text-center text-gray-900 dark:text-gray-100">Projects</h2>
+  
   <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
     {#each projects as project}
       <article class="border rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
-        <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
+        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-300">{project.title}</h3>
         <img src="{project.image}" alt="{project.title} Image" class="mb-4 w-full h-48 object-cover rounded" loading="lazy" />
         
         <!-- Description and Year Wrapper -->
         <div class="project-details">
-          <p class="text-md text-gray-700">{project.description}</p>
-          <p class="project-year">{project.year}</p>
+          <p class="text-md text-gray-700 dark:text-gray-400">{project.description}</p>
+          <p class="project-year text-gray-500 dark:text-gray-400">{project.year}</p>
           
           <!-- Technologies Used -->
           {#if project.technologies}
-            <p class="text-sm text-gray-500 mt-2">Technologies: {project.technologies.join(', ')}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Technologies: {project.technologies.join(', ')}
+            </p>
           {/if}
         </div>
         
@@ -59,8 +59,14 @@
 
   <!-- Pie Chart Section: Projects by Year -->
   <div class="mt-12">
-    <h3 class="text-2xl font-semibold mb-4 text-center">Projects Distribution by Year</h3>
-    <PieChart {projectsByYear} width={300} height={300} innerRadius={50} outerRadius={100} />
+    <h3 class="text-2xl font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">Projects Distribution by Year</h3>
+    <PieChart data={projectsByYear} width={300} height={300} innerRadius={50} outerRadius={100} />
+  </div>
+
+  <!-- Pie Chart Section: Projects by Technology -->
+  <div class="mt-12">
+    <h3 class="text-2xl font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">Projects by Technology</h3>
+    <PieChart data={projectsByTechnology} width={300} height={300} innerRadius={50} outerRadius={100} />
   </div>
 </section>
 
